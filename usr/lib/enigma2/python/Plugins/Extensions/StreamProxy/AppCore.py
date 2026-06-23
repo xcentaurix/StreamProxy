@@ -116,7 +116,9 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
                     "WARNING",
                     "proxy_ts")
 
-        enhanced_log(f"🔄 [FMP4_CONVERT] Processamento {len(fmp4_content)} bytes fMP4")
+        enhanced_log(
+            f"🔄 [FMP4_CONVERT] Processamento {
+                len(fmp4_content)} bytes fMP4")
 
         # ✅ SOLUZIONE CRITICA: Per Freeshot, invia SEMPRE fMP4 diretto
         # Enigma2 moderno gestisce fMP4 nativamente meglio della conversione TS

@@ -5,9 +5,9 @@ def _(text):
 
 # (Opzionale) Se vuoi mantenere la compatibilità con il vecchio codice,
 # puoi anche definire una classe Locale con un metodo statico _.
+
+
 class Locale:
     @staticmethod
     def _(text):
         return text
-
-

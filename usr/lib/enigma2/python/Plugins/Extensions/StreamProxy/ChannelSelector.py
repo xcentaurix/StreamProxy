@@ -28,10 +28,11 @@ class ChannelSelector(ChannelSelection):
         self.target_service_ref = session.nav.getCurrentlyPlayingServiceReference()
         if self.target_service_ref:
             enhanced_log(
-                f"Service ref salvato: {self.target_service_ref.toString()[:100]}...",
+                f"Service ref salvato: {
+                    self.target_service_ref.toString()[
+                        :100]}...",
                 "DEBUG",
-                "ChannelSelector"
-            )
+                "ChannelSelector")
         # Inizializza la classe padre
         ChannelSelection.__init__(self, session)
 

@@ -7,9 +7,33 @@
 
 # ⭐️ StreamProxy
 
-**StreamProxy** turns an **Enigma2** receiver into an intelligent proxy server capable of handling **HLS (m3u8)** streams from various sources such as DaddyLive, Vavoo, Freeshot, Sport99, and others, making them fully playable on Enigma2 devices.
+**StreamProxy** turns an **Enigma2** receiver into an intelligent proxy server capable of handling **HLS (m3u8)** streams from various sources
+such as DaddyLive, Vavoo, Freeshot, Sport99, and others, making them fully playable on Enigma2 devices.
 
-The plugin intercepts IPTV channel playback requests, resolves the actual stream URLs, handles tokens and encryption keys, performs AES decryption when required, and serves the content through a local proxy in an Enigma2-compatible format.
+The plugin intercepts IPTV channel playback requests, resolves the actual stream URLs, handles tokens and encryption keys,
+performs AES decryption when required, and serves the content through a local proxy in an Enigma2-compatible format.
+
+
+## ℹ️ Overview
+
+StreamProxy is designed to work completely transparently in the background.
+Once installed, it runs as a service and requires little to no configuration: simply use compatible channel lists and the plugin will handle everything automatically.
+
+The plugin monitors all `playService()` calls made by Enigma2. If the selected service is a standard terrestrial or satellite channel,
+the request is ignored and passed through normally. If the service is an IPTV stream (HTTP/HLS), StreamProxy intercepts it, analyzes the URL, forwards it to the appropriate extractor/decryptor,
+and returns a ready-to-play TS stream to the Enigma2 player.
+
+If playback issues occur, the built-in log system is usually enough to identify the cause.
+Since streaming providers frequently change their protection mechanisms, individual decryptors may occasionally require updates to restore functionality.
+Recent versions also support external proxy solutions such as **EasyProxy** (recommended) and **MediaFlowProxy**.
+
+In this configuration, the receiver delegates URL resolution, token handling, and stream decryption to the external proxy, which returns a ready-to-play TS stream.
+This approach provides better compatibility and significantly reduces maintenance compared to relying solely on internal decryptors.
+
+The `extractor/` directory contains all available service-specific decryptors. Some are fully functional,
+while others may no longer be maintained due to ongoing changes introduced by streaming providers.
+For this reason, using an external proxy is currently the recommended solution whenever possible.
+
 
 ---
 
@@ -267,7 +291,7 @@ StreamProxy acts as a compatibility layer between Enigma2 and modern streaming s
   2. Restart Enigma2.
 
 ## IPK install:
-  opkg install enigma2-plugin-extensions-streamproxy_2026.05.05.0032_all.ipk
+  opkg install enigma2-plugin-extensions-streamproxy_all.ipk
 
 ## Runtime requirements:
   python3, python3-twisted, python3-requests, python3-pycryptodome

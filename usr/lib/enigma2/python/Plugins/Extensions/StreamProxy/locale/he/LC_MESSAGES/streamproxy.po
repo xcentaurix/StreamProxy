@@ -1,0 +1,51 @@
+# streamproxy translations
+# Copyright (C) 2025 Lululla Team
+# This file is distributed under the same license as the Lululla package.
+# [lululla] <ekekaz@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: streamproxy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-06-23 18:52+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: Hebrew <heb-bugzap@hamakor.org.il>\n"
+"Language: he\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Abilita Stream Proxy"
+msgstr "פרוקסי של Abilita Stream"
+
+msgid "Abilita filtro canali"
+msgstr "אפשר מסנן ערוצים"
+
+msgid "Annulla"
+msgstr "לְבַטֵל"
+
+msgid "Mostra notifiche"
+msgstr "הצג התראות"
+
+msgid "Numero massimo righe log"
+msgstr "מספר מרבי של שורות יומן"
+
+msgid "Porta proxy"
+msgstr "פורטה פרוקסי"
+
+msgid "Salva"
+msgstr "סלווה"
+
+msgid "StreamProxy Setup"
+msgstr "הגדרת StreamProxy"
+
+msgid "User-Agent"
+msgstr "משתמש-סוכן"
+
+msgid "User-Agent personalizzato"
+msgstr "סוכן משתמש מותאם אישית"
+
+msgid "Visualizza log"
+msgstr "הצג יומנים"

@@ -1,0 +1,50 @@
+# streamproxy translations
+# Copyright (C) 2025 Lululla Team
+# This file is distributed under the same license as the Lululla package.
+# [lululla] <ekekaz@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: streamproxy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-06-23 18:47+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: Amharic\n"
+"Language: am\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Abilita Stream Proxy"
+msgstr "አቢሊታ ዥረት ተኪ"
+
+msgid "Abilita filtro canali"
+msgstr "የሰርጥ ማጣሪያን አንቃ"
+
+msgid "Annulla"
+msgstr "ሰርዝ"
+
+msgid "Mostra notifiche"
+msgstr "ማሳወቂያዎችን አሳይ"
+
+msgid "Numero massimo righe log"
+msgstr "ከፍተኛው የምዝግብ ማስታወሻ መስመሮች ብዛት"
+
+msgid "Porta proxy"
+msgstr "የፖርታ ፕሮክሲ"
+
+msgid "Salva"
+msgstr "ሳልቫ"
+
+msgid "StreamProxy Setup"
+msgstr "StreamProxy ማዋቀር"
+
+msgid "User-Agent"
+msgstr "ተጠቃሚ-ወኪል"
+
+msgid "User-Agent personalizzato"
+msgstr ""
+
+msgid "Visualizza log"
+msgstr "የምዝግብ ማስታወሻዎችን ይመልከቱ"

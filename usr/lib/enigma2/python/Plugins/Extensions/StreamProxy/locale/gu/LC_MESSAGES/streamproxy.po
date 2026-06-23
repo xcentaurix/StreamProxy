@@ -1,0 +1,50 @@
+# streamproxy translations
+# Copyright (C) 2025 Lululla Team
+# This file is distributed under the same license as the Lululla package.
+# [lululla] <ekekaz@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: streamproxy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-06-23 18:52+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: Gujarati\n"
+"Language: gu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Abilita Stream Proxy"
+msgstr "અબિલિતા સ્ટ્રીમ પ્રોક્સી"
+
+msgid "Abilita filtro canali"
+msgstr "ચેનલ ફિલ્ટર સક્ષમ કરો"
+
+msgid "Annulla"
+msgstr "રદ કરો"
+
+msgid "Mostra notifiche"
+msgstr "સૂચનાઓ બતાવો"
+
+msgid "Numero massimo righe log"
+msgstr "લોગ લાઇનની મહત્તમ સંખ્યા"
+
+msgid "Porta proxy"
+msgstr "પોર્ટા પ્રોક્સી"
+
+msgid "Salva"
+msgstr "સાલ્વા"
+
+msgid "StreamProxy Setup"
+msgstr "સ્ટ્રીમપ્રોક્સી સેટઅપ"
+
+msgid "User-Agent"
+msgstr "વપરાશકર્તા એજન્ટ"
+
+msgid "User-Agent personalizzato"
+msgstr "કસ્ટમ યુઝર-એજન્ટ"
+
+msgid "Visualizza log"
+msgstr "લોગ જુઓ"

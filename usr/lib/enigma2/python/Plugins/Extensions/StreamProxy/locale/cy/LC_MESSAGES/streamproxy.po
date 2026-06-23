@@ -1,0 +1,50 @@
+# streamproxy translations
+# Copyright (C) 2025 Lululla Team
+# This file is distributed under the same license as the Lululla package.
+# [lululla] <ekekaz@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: streamproxy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-06-23 18:48+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: Welsh\n"
+"Language: cy\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Abilita Stream Proxy"
+msgstr "Dirprwy Ffrwd Abilita"
+
+msgid "Abilita filtro canali"
+msgstr "Galluogi hidlydd sianel"
+
+msgid "Annulla"
+msgstr "Canslo"
+
+msgid "Mostra notifiche"
+msgstr "Dangos hysbysiadau"
+
+msgid "Numero massimo righe log"
+msgstr "Uchafswm nifer y llinellau log"
+
+msgid "Porta proxy"
+msgstr "Porta dirprwy"
+
+msgid "Salva"
+msgstr ""
+
+msgid "StreamProxy Setup"
+msgstr "Gosod StreamProxy"
+
+msgid "User-Agent"
+msgstr "Defnyddiwr-Asiant"
+
+msgid "User-Agent personalizzato"
+msgstr "Custom Defnyddiwr-Asiant"
+
+msgid "Visualizza log"
+msgstr "Gweld logiau"

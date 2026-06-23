@@ -1,0 +1,50 @@
+# streamproxy translations
+# Copyright (C) 2025 Lululla Team
+# This file is distributed under the same license as the Lululla package.
+# [lululla] <ekekaz@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: streamproxy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-06-23 18:53+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: Indonesian <translation-team-id@lists.sourceforge.net>\n"
+"Language: id\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Abilita Stream Proxy"
+msgstr "Proksi Aliran Abilita"
+
+msgid "Abilita filtro canali"
+msgstr "Aktifkan filter saluran"
+
+msgid "Annulla"
+msgstr "Membatalkan"
+
+msgid "Mostra notifiche"
+msgstr "Tampilkan notifikasi"
+
+msgid "Numero massimo righe log"
+msgstr "Jumlah maksimum baris log"
+
+msgid "Porta proxy"
+msgstr "Proksi porta"
+
+msgid "Salva"
+msgstr "penyelamatan"
+
+msgid "StreamProxy Setup"
+msgstr "Pengaturan StreamProxy"
+
+msgid "User-Agent"
+msgstr "Agen-Pengguna"
+
+msgid "User-Agent personalizzato"
+msgstr "Agen Pengguna Khusus"
+
+msgid "Visualizza log"
+msgstr "Lihat log"

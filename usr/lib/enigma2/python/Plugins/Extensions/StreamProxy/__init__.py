@@ -7,10 +7,10 @@ import gettext
 import os
 
 # try:
-    # from Crypto.Cipher import AES
-    # CRYPTO_AVAILABLE = True
+# from Crypto.Cipher import AES
+# CRYPTO_AVAILABLE = True
 # except ImportError:
-    # CRYPTO_AVAILABLE = False
+# CRYPTO_AVAILABLE = False
 
 print("[StreamProxy] Plugin init")
 

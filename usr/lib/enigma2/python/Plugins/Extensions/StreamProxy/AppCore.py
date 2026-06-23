@@ -147,7 +147,8 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
 
             if init_segment:
                 enhanced_log(
-                    "📦 [FMP4_CONVERT] Using init segment: %d bytes" % len(init_segment),
+                    "📦 [FMP4_CONVERT] Using init segment: %d bytes" % len(
+                        init_segment),
                     "DEBUG",
                     "proxy_ts"
                 )
@@ -299,7 +300,9 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
                 if len(packet_payload) < TS_PAYLOAD_SIZE - \
                         adaptation_field_length:
                     packet_payload += b'\xFF' * \
-                        (TS_PAYLOAD_SIZE - adaptation_field_length - len(packet_payload))
+                        (TS_PAYLOAD_SIZE -
+    adaptation_field_length -
+     len(packet_payload))
 
                 ts_header = bytes([
                     0x47,
@@ -414,7 +417,8 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
             )
 
         enhanced_log(
-            "✅ [FMP4_CONVERT] Conversion completed: %d TS bytes" % len(ts_stream),
+            "✅ [FMP4_CONVERT] Conversion completed: %d TS bytes" % len(
+                ts_stream),
             "INFO",
             "proxy_ts"
         )
@@ -533,7 +537,8 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
             )
 
             enhanced_log(
-                "🆘 [FMP4_CONVERT] Emergency fallback: %d bytes" % len(emergency_ts),
+                "🆘 [FMP4_CONVERT] Emergency fallback: %d bytes" % len(
+                    emergency_ts),
                 "WARNING",
                 "proxy_ts"
             )
@@ -2449,7 +2454,8 @@ def proxy_m3u(request=None, **kwargs):
 
         final_url = result.get("resolved_url")
 
-        # Rileva automaticamente segmenti DLHD mascherati DOPO aver ottenuto final_url
+        # Rileva automaticamente segmenti DLHD mascherati DOPO aver ottenuto
+        # final_url
         is_dlhd_domain = final_url and is_daddy_domain(final_url)
         dlhd_masked = kwargs.get(
             'dlhd_masked',
@@ -2860,7 +2866,8 @@ def proxy_m3u(request=None, **kwargs):
                         f"🔗 [FMP4_DIRECT] URL proxy: {proxy_url[:100]}...", "DEBUG", "AppCore")
                 else:
                     # È un segmento TS (qualsiasi altra estensione, inclusi .html per DLHD), usa proxy/ts
-                    # stream_id DEVE essere nel query string per la decrittazione
+                    # stream_id DEVE essere nel query string per la
+                    # decrittazione
                     if headers_query:
                         proxy_url = f"http://127.0.0.1:7860/proxy/ts?url={
                             quote(segment_url)}&stream_id={stream_id}&{headers_query}"
@@ -4168,7 +4175,8 @@ def get_aes_key_for_stream(stream_id, headers, segment_url=None):
             key_info['last_key_uri'] = key_uri
 
             enhanced_log(
-                "✅ [NEW_KEY] === NEW AES KEY SAVED (%d bytes) ===" % len(aes_key),
+                "✅ [NEW_KEY] === NEW AES KEY SAVED (%d bytes) ===" % len(
+                    aes_key),
                 "INFO",
                 "AppCore"
             )
@@ -4176,7 +4184,8 @@ def get_aes_key_for_stream(stream_id, headers, segment_url=None):
             return aes_key
         else:
             enhanced_log(
-                "❌ [NEW_KEY] Invalid AES key size: %d bytes (expected 16)" % len(aes_key),
+                "❌ [NEW_KEY] Invalid AES key size: %d bytes (expected 16)" % len(
+                    aes_key),
                 "ERROR",
                 "AppCore"
             )
@@ -4242,13 +4251,13 @@ def decrypt_ts_segment(ts_content, aes_key, stream_id):
                         "WARNING",
                         "proxy_ts"
                     )
-                    iv = None
+                    iv=None
 
             # Assicurati che l'IV sia esattamente 16 byte
             if iv is not None:
                 if len(iv) < 16:
                     # Se è troppo corto, aggiungi zeri alla fine
-                    iv = iv + (b'\x00' * (16 - len(iv)))
+                    iv=iv + (b'\x00' * (16 - len(iv)))
                     enhanced_log(
                         "⚠️ [IV] IV too short, padded: %s" % iv.hex(),
                         "WARNING",
@@ -4256,7 +4265,7 @@ def decrypt_ts_segment(ts_content, aes_key, stream_id):
                     )
                 elif len(iv) > 16:
                     # Se è troppo lungo, prendi i primi 16 byte
-                    iv = iv[:16]
+                    iv=iv[:16]
                     enhanced_log(
                         "⚠️ [IV] IV too long, truncated: %s" % iv.hex(),
                         "WARNING",
@@ -4265,7 +4274,7 @@ def decrypt_ts_segment(ts_content, aes_key, stream_id):
 
         # Se non abbiamo un IV valido, usiamo uno di default
         if iv is None or len(iv) != 16:
-            iv = b'\x00' * 16
+            iv=b'\x00' * 16
             enhanced_log(
                 "⚠️ [IV] Using default IV",
                 "WARNING",
@@ -4273,7 +4282,7 @@ def decrypt_ts_segment(ts_content, aes_key, stream_id):
             )
         # Salva l'IV corretto per i prossimi utilizzi
         if stream_id in STREAM_KEY_INFO:
-            STREAM_KEY_INFO[stream_id]['iv'] = iv
+            STREAM_KEY_INFO[stream_id]['iv']=iv
 
         enhanced_log(
             "🔢 [IV] Final IV for decryption: %s" % iv.hex(),
@@ -4282,7 +4291,7 @@ def decrypt_ts_segment(ts_content, aes_key, stream_id):
         )
 
         # Log IV e chiave per debug
-        is_daddy = STREAM_KEY_INFO.get(stream_id, {}).get('is_daddy', False)
+        is_daddy=STREAM_KEY_INFO.get(stream_id, {}).get('is_daddy', False)
         if is_daddy:
             enhanced_log(
                 "🔐 [DECRYPT] IV (hex): %s" % iv.hex(),
@@ -4305,23 +4314,23 @@ def decrypt_ts_segment(ts_content, aes_key, stream_id):
                     from cryptography.hazmat.backends import default_backend
                 except ImportError:
                     return ts_content
-                cipher = Cipher(
+                cipher=Cipher(
                     algorithms.AES(aes_key),
                     modes.CBC(iv),
                     backend=default_backend())
-                decryptor = cipher.decryptor()
-                decrypted = decryptor.update(ts_content) + decryptor.finalize()
+                decryptor=cipher.decryptor()
+                decrypted=decryptor.update(ts_content) + decryptor.finalize()
             else:
-                cipher = AES_MODULE.new(aes_key, AES_MODULE.MODE_CBC, iv)
-                decrypted = cipher.decrypt(ts_content)
+                cipher=AES_MODULE.new(aes_key, AES_MODULE.MODE_CBC, iv)
+                decrypted=cipher.decrypt(ts_content)
 
             # Prova a rimuovere il padding PKCS7
             if len(decrypted) > 0:
-                padding_length = decrypted[-1]
+                padding_length=decrypted[-1]
                 if 0 < padding_length <= 16:
                     if all(
                             b == padding_length for b in decrypted[-padding_length:]):
-                        decrypted = decrypted[:-padding_length]
+                        decrypted=decrypted[:-padding_length]
 
             # Verifica il sync byte TS (0x47) all'inizio del pacchetto
             if len(decrypted) > 0 and decrypted[0] == 0x47:
@@ -4330,15 +4339,15 @@ def decrypt_ts_segment(ts_content, aes_key, stream_id):
             # Se il sync byte non è corretto, prova a decifrare senza rimuovere
             # il padding
             if AES_MODULE == "cryptography":
-                cipher = Cipher(
+                cipher=Cipher(
                     algorithms.AES(aes_key),
                     modes.CBC(iv),
                     backend=default_backend())
-                decryptor = cipher.decryptor()
-                decrypted = decryptor.update(ts_content) + decryptor.finalize()
+                decryptor=cipher.decryptor()
+                decrypted=decryptor.update(ts_content) + decryptor.finalize()
             else:
-                cipher = AES_MODULE.new(aes_key, AES_MODULE.MODE_CBC, iv)
-                decrypted = cipher.decrypt(ts_content)
+                cipher=AES_MODULE.new(aes_key, AES_MODULE.MODE_CBC, iv)
+                decrypted=cipher.decrypt(ts_content)
 
             return decrypted
 
@@ -4357,7 +4366,7 @@ def decrypt_ts_segment(ts_content, aes_key, stream_id):
 def create_robust_session():
     """Create an optimized session for Enigma2 with built-in retry support and cookie handling"""
 
-    session = requests.Session()
+    session=requests.Session()
 
     # Do not override the default User-Agent;
     # let it be defined per request.
@@ -4369,14 +4378,14 @@ def create_robust_session():
     # session.cookies is already a CookieJar instance.
 
     # Monkey patch for automatic retries
-    original_request = session.request
+    original_request=session.request
 
     def request_with_retry(method, url, **kwargs):
-        retry_codes = [429, 500, 502, 503, 504]
+        retry_codes=[429, 500, 502, 503, 504]
 
         for attempt in range(3):
             try:
-                response = original_request(method, url, **kwargs)
+                response=original_request(method, url, **kwargs)
 
                 if response.status_code not in retry_codes:
                     return response
@@ -4396,7 +4405,7 @@ def create_robust_session():
 
         return response
 
-    session.request = request_with_retry
+    session.request=request_with_retry
 
     return session
 
@@ -4406,20 +4415,20 @@ def get_persistent_session(proxy_url=None):
     global SESSION_POOL, SESSION_LOCK
 
     # Use proxy_url as the key, or 'default' if no proxy is provided
-    pool_key = proxy_url if proxy_url else 'default'
-    current_time = time.time()
+    pool_key=proxy_url if proxy_url else 'default'
+    current_time=time.time()
 
     with SESSION_LOCK:
-        session = SESSION_POOL.get(pool_key)
+        session=SESSION_POOL.get(pool_key)
 
         if session is not None:
-            session_age = current_time - getattr(
+            session_age=current_time - getattr(
                 session,
                 "_sp_created_at",
                 current_time
             )
 
-            requests_count = getattr(
+            requests_count=getattr(
                 session,
                 "_sp_requests_count",
                 0
@@ -4443,10 +4452,10 @@ def get_persistent_session(proxy_url=None):
                     )
 
                 del SESSION_POOL[pool_key]
-                session = None
+                session=None
 
         if session is None:
-            session = create_robust_session()
+            session=create_robust_session()
 
             if session is None:
                 enhanced_log(
@@ -4463,10 +4472,10 @@ def get_persistent_session(proxy_url=None):
                     'https': proxy_url
                 })
 
-            session._sp_created_at = current_time
-            session._sp_requests_count = 0
+            session._sp_created_at=current_time
+            session._sp_requests_count=0
 
-            SESSION_POOL[pool_key] = session
+            SESSION_POOL[pool_key]=session
 
             enhanced_log(
                 "New persistent session created for: %s" % pool_key,
@@ -4474,7 +4483,7 @@ def get_persistent_session(proxy_url=None):
                 "AppCore"
             )
 
-        SESSION_POOL[pool_key]._sp_requests_count = (
+        SESSION_POOL[pool_key]._sp_requests_count=(
             getattr(
                 SESSION_POOL[pool_key],
                 "_sp_requests_count",
@@ -4494,7 +4503,7 @@ def make_persistent_request(
     """Optimized HTTP request for Enigma2 with persistent DLHD session"""
     from html import unescape as html_unescape
 
-    url = html_unescape(url)
+    url=html_unescape(url)
 
     enhanced_log(
         "🌐 [PERSISTENT_REQUEST] URL: %s..." % url[:100],
@@ -4503,7 +4512,7 @@ def make_persistent_request(
     )
 
     # Use persistent DLHD session for kiko2.ru domains
-    dlhd_session = get_dlhd_session()
+    dlhd_session=get_dlhd_session()
 
     if dlhd_session and any(
             domain in url.lower()
@@ -4516,7 +4525,7 @@ def make_persistent_request(
         )
 
         try:
-            response = dlhd_session.get(
+            response=dlhd_session.get(
                 url,
                 headers=headers,
                 timeout=timeout or REQUEST_TIMEOUT,
@@ -4541,19 +4550,19 @@ def make_persistent_request(
             # Fallback to standard method
 
     # Standard method for other domains
-    request_headers = headers.copy() if headers else {}
+    request_headers=headers.copy() if headers else {}
 
     for header_name in list(request_headers.keys()):
         if header_name.lower().startswith("x-easyproxy-"):
             request_headers.pop(header_name, None)
 
-    final_timeout = timeout or REQUEST_TIMEOUT
+    final_timeout=timeout or REQUEST_TIMEOUT
 
-    response = None
+    response=None
 
     for attempt in range(3):
         try:
-            session = get_persistent_session(proxy_url)
+            session=get_persistent_session(proxy_url)
 
             if session is None:
                 enhanced_log(
@@ -4570,7 +4579,7 @@ def make_persistent_request(
             )
 
             if request_headers:
-                response = session.get(
+                response=session.get(
                     url,
                     headers=request_headers,
                     timeout=final_timeout,
@@ -4578,7 +4587,7 @@ def make_persistent_request(
                     **kwargs
                 )
             else:
-                response = session.get(
+                response=session.get(
                     url,
                     timeout=final_timeout,
                     verify=VERIFY_SSL,
@@ -4591,7 +4600,7 @@ def make_persistent_request(
                 "AppCore"
             )
 
-            retry_codes = [418, 429, 500, 502, 503, 504]
+            retry_codes=[418, 429, 500, 502, 503, 504]
 
             if response.status_code not in retry_codes:
                 return response
@@ -4613,7 +4622,7 @@ def make_persistent_request(
             )
 
             with SESSION_LOCK:
-                pool_key = proxy_url if proxy_url else 'default'
+                pool_key=proxy_url if proxy_url else 'default'
 
                 if pool_key in SESSION_POOL:
                     del SESSION_POOL[pool_key]
@@ -4635,12 +4644,12 @@ def make_persistent_request(
 
 
 # Proxy KEY SENZA CACHE
-@route_registry.route('/proxy/key')
+@ route_registry.route('/proxy/key')
 def proxy_key(request=None, **kwargs):
     """AES-128 KEY proxy for DLHD keys"""
     enhanced_log("🔑 Proxy Key", "INFO", "AppCore")
 
-    key_url = kwargs.get('url', '').strip()
+    key_url=kwargs.get('url', '').strip()
 
     if not key_url:
         enhanced_log(
@@ -4656,7 +4665,7 @@ def proxy_key(request=None, **kwargs):
         }
 
     # Extract custom headers
-    headers = {
+    headers={
         unquote(key[2:]).replace("_", "-"): unquote(value).strip()
         for key, value in kwargs.items()
         if key.lower().startswith("h_")
@@ -4670,7 +4679,7 @@ def proxy_key(request=None, **kwargs):
         )
 
         # Use persistent DLHD session if available
-        dlhd_session = get_dlhd_session()
+        dlhd_session=get_dlhd_session()
 
         if dlhd_session and 'kiko2.ru' in key_url:
             enhanced_log(
@@ -4679,25 +4688,26 @@ def proxy_key(request=None, **kwargs):
                 "AppCore"
             )
 
-            response = dlhd_session.get(
+            response=dlhd_session.get(
                 key_url,
                 headers=headers,
                 timeout=8,
                 verify=False
             )
         else:
-            response = make_persistent_request(
+            response=make_persistent_request(
                 key_url,
                 headers=headers,
                 timeout=8
             )
 
         response.raise_for_status()
-        key_content = response.content
+        key_content=response.content
 
         if len(key_content) == 16:
             enhanced_log(
-                "✅ [PROXY_KEY] AES key downloaded: %d bytes" % len(key_content),
+                "✅ [PROXY_KEY] AES key downloaded: %d bytes" % len(
+                    key_content),
                 "INFO",
                 "AppCore"
             )
@@ -4734,10 +4744,10 @@ def proxy_key(request=None, **kwargs):
         }
 
 
-@route_registry.route('/service/notify_m3u')
+@ route_registry.route('/service/notify_m3u')
 def notify_m3u(request=None, **kwargs):
     """Notifica interna usata da Pipeline quando aggiorna il file M3U."""
-    path = kwargs.get('path', '')
+    path=kwargs.get('path', '')
     enhanced_log(f"Notifica M3U ricevuta: {path}", "INFO", "AppCore")
     return {
         'content': b"OK",
@@ -4747,8 +4757,8 @@ def notify_m3u(request=None, **kwargs):
 
 
 # Liste globali per i proxy, popolate da load_config
-PROXY_LIST = []
-DADDY_PROXY_LIST = []
+PROXY_LIST=[]
+DADDY_PROXY_LIST=[]
 
 
 def get_daddy_proxy_list():
@@ -4759,7 +4769,7 @@ def get_daddy_proxy_list():
 def _normalize_proxy_url(proxy):
     if not proxy:
         return proxy
-    proxy = proxy.strip()
+    proxy=proxy.strip()
     if proxy.startswith(
         ('http://',
          'https://',
@@ -4773,8 +4783,8 @@ def _normalize_proxy_url(proxy):
 class ConfigManager:
     def __init__(self):
         """Inizializza il gestore della configurazione."""
-        self.config_file = 'streamproxy_config.json'
-        self.default_config = {
+        self.config_file='streamproxy_config.json'
+        self.default_config={
             'PROXY': '',
             'DADDY_PROXY': '',
             'REQUEST_TIMEOUT': 8,
@@ -4790,28 +4800,29 @@ class ConfigManager:
         """
         global PROXY_LIST, DADDY_PROXY_LIST
 
-        config = self.default_config.copy()
+        config=self.default_config.copy()
 
-        config_paths = [
+        config_paths=[
             '/usr/lib/enigma2/python/Plugins/Extensions/StreamProxy/SPconfig.txt',
             '/usr/lib/enigma2/python/Plugins/Extensions/StreamProxy/streamproxy_config.json',
             'SPconfig.txt',
             self.config_file
         ]
 
-        loaded_path = None
+        loaded_path=None
 
         for path in config_paths:
             if os.path.exists(path):
                 try:
                     with open(path, 'r', encoding='utf-8') as f:
-                        file_config = json.load(f)
+                        file_config=json.load(f)
 
                         for key, value in file_config.items():
-                            if key not in config or config.get(key) in ('', None):
-                                config[key] = value
+                            if key not in config or config.get(
+                                key) in ('', None):
+                                config[key]=value
 
-                    loaded_path = path
+                    loaded_path=path
 
                     # enhanced_log(
                     #     "✅ Configuration loaded from: %s" % loaded_path,
@@ -4833,9 +4844,9 @@ class ConfigManager:
                 "AppCore"
             )
 
-        proxy_str = config.get('PROXY', '')
+        proxy_str=config.get('PROXY', '')
 
-        PROXY_LIST = [
+        PROXY_LIST=[
             _normalize_proxy_url(p)
             for p in proxy_str.split(',')
             if p.strip()
@@ -4848,9 +4859,9 @@ class ConfigManager:
                 "AppCore"
             )
 
-        daddy_proxy_str = config.get('DADDY_PROXY', '')
+        daddy_proxy_str=config.get('DADDY_PROXY', '')
 
-        DADDY_PROXY_LIST = [
+        DADDY_PROXY_LIST=[
             _normalize_proxy_url(p)
             for p in daddy_proxy_str.split(',')
             if p.strip()
@@ -4867,11 +4878,11 @@ class ConfigManager:
 
     def save_config(self, config):
         """Save configuration to the JSON file in the default path."""
-        path_to_save = self.config_file
+        path_to_save=self.config_file
 
         try:
             with open(path_to_save, 'w', encoding='utf-8') as f:
-                config_to_save = {
+                config_to_save={
                     k: config.get(k)
                     for k in self.default_config.keys()
                     if k in config
@@ -4904,13 +4915,13 @@ class ConfigManager:
             from flask import current_app
             if current_app:
                 for key, value in config.items():
-                    current_app.config[key] = value
+                    current_app.config[key]=value
             return True
         except (ImportError, RuntimeError):
             return True
 
 
-config_manager = ConfigManager()
+config_manager=ConfigManager()
 
 
 class AppCoreNoCache:
@@ -4959,7 +4970,7 @@ def service_monitor_callback(route_name, *args, **kwargs):
     )
 
     try:
-        app_core = AppCoreNoCache()
+        app_core=AppCoreNoCache()
 
         # Debug e fix del passaggio parametri
         enhanced_log(

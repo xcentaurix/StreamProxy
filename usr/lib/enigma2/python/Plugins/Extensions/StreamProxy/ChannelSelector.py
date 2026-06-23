@@ -28,9 +28,9 @@ class ChannelSelector(ChannelSelection):
         self.target_service_ref = session.nav.getCurrentlyPlayingServiceReference()
         if self.target_service_ref:
             enhanced_log(
-                "Service ref saved: %s..." % self.target_service_ref.toString()[:100],
-                "DEBUG",
-                "ChannelSelector")
+                "Service ref saved: %s..." %
+                self.target_service_ref.toString()[
+                    :100], "DEBUG", "ChannelSelector")
 
         # Initialise the parent class
         ChannelSelection.__init__(self, session)
@@ -44,7 +44,8 @@ class ChannelSelector(ChannelSelection):
         self.max_attempts = 10
 
         # Widgets
-        self["status"] = Label("OK: Select/Deselect, Green: Save, Yellow: Select All")
+        self["status"] = Label(
+            "OK: Select/Deselect, Green: Save, Yellow: Select All")
         self["search_input"] = Input(text="", maxSize=False, type=Input.TEXT)
         self["selectAllButton"] = Button("Select All")
 
@@ -105,11 +106,17 @@ class ChannelSelector(ChannelSelection):
             "ChannelSelector")
 
         if self.selection_attempts > self.max_attempts:
-            enhanced_log("Reached maximum attempts", "DEBUG", "ChannelSelector")
+            enhanced_log(
+                "Reached maximum attempts",
+                "DEBUG",
+                "ChannelSelector")
             return
 
         if not self.target_service_ref or not self.target_service_ref.valid():
-            enhanced_log("No valid service reference", "DEBUG", "ChannelSelector")
+            enhanced_log(
+                "No valid service reference",
+                "DEBUG",
+                "ChannelSelector")
             return
 
         try:
@@ -121,29 +128,46 @@ class ChannelSelector(ChannelSelection):
 
             # Method 2: Try setCurrentSelection
             if hasattr(self, 'setCurrentSelection'):
-                enhanced_log("Trying setCurrentSelection", "DEBUG", "ChannelSelector")
+                enhanced_log(
+                    "Trying setCurrentSelection",
+                    "DEBUG",
+                    "ChannelSelector")
                 self.setCurrentSelection(self.target_service_ref)
                 return
 
             # Method 3: Direct access to the list
-            servicelist = self.servicelist if hasattr(self, 'servicelist') else self.get("list", None)
+            servicelist = self.servicelist if hasattr(
+                self, 'servicelist') else self.get(
+                "list", None)
             if servicelist:
-                enhanced_log("Trying setCurrent on the list", "DEBUG", "ChannelSelector")
+                enhanced_log(
+                    "Trying setCurrent on the list",
+                    "DEBUG",
+                    "ChannelSelector")
 
                 # First try directly
                 if hasattr(servicelist, 'setCurrent'):
                     servicelist.setCurrent(self.target_service_ref)
-                    enhanced_log("setCurrent executed", "DEBUG", "ChannelSelector")
+                    enhanced_log(
+                        "setCurrent executed",
+                        "DEBUG",
+                        "ChannelSelector")
                     return
 
                 # Then try moveToService
                 if hasattr(servicelist, 'moveToService'):
                     servicelist.moveToService(self.target_service_ref)
-                    enhanced_log("moveToService executed", "DEBUG", "ChannelSelector")
+                    enhanced_log(
+                        "moveToService executed",
+                        "DEBUG",
+                        "ChannelSelector")
                     return
 
             # If nothing worked, try again
-            enhanced_log("No method worked, retrying...", "DEBUG", "ChannelSelector")
+            enhanced_log(
+                "No method worked, retrying...",
+                "DEBUG",
+                "ChannelSelector")
             self.position_timer.start(200, True)
 
         except Exception as e:
@@ -186,7 +210,9 @@ class ChannelSelector(ChannelSelection):
             self.tryPositionChannel()
 
         except Exception as e:
-            enhanced_log("Error in debugInfo: %s" % e, "ERROR", "ChannelSelector")
+            enhanced_log(
+                "Error in debugInfo: %s" %
+                e, "ERROR", "ChannelSelector")
 
     def get_original_url_from_ref(self, ref):
         """Extract the original URL from a service reference"""
@@ -209,7 +235,9 @@ class ChannelSelector(ChannelSelection):
                 return original_url.strip() if original_url else None
             return url_field.strip() if url_field else None
         except Exception as e:
-            enhanced_log("Error extracting original URL: %s" % e, "DEBUG", "ChannelSelector")
+            enhanced_log(
+                "Error extracting original URL: %s" %
+                e, "DEBUG", "ChannelSelector")
             return None
 
     def toggleSelection(self):
@@ -237,7 +265,9 @@ class ChannelSelector(ChannelSelection):
     def selectAll(self):
         """Select all channels in the current bouquet"""
         try:
-            servicelist = self.servicelist if hasattr(self, 'servicelist') else self.get("list", None)
+            servicelist = self.servicelist if hasattr(
+                self, 'servicelist') else self.get(
+                "list", None)
             if servicelist:
                 root = servicelist.getRoot()
                 if root:
@@ -256,11 +286,15 @@ class ChannelSelector(ChannelSelection):
                                     self.selected.append(ref_str)
                                     count += 1
 
-                            enhanced_log("Added %d channels" % count, "DEBUG", "ChannelSelector")
+                            enhanced_log(
+                                "Added %d channels" %
+                                count, "DEBUG", "ChannelSelector")
 
             self.updateStatus()
         except Exception as e:
-            enhanced_log("Error in selectAll: %s" % e, "ERROR", "ChannelSelector")
+            enhanced_log(
+                "Error in selectAll: %s" %
+                e, "ERROR", "ChannelSelector")
 
     def setSelectedServices(self, selected):
         """Set already selected services"""
@@ -282,7 +316,10 @@ class ChannelSelector(ChannelSelection):
         self.last_search = text
 
         if text:
-            self["status"].setText("Search: '%s' - %d selected" % (text, len(self.selected)))
+            self["status"].setText(
+                "Search: '%s' - %d selected" %
+                (text, len(
+                    self.selected)))
         else:
             self.updateStatus()
 

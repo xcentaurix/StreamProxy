@@ -1,4 +1,6 @@
-# StreamProxySetup.py
+# -*- coding: utf-8 -*-
+# StreamProxySetup.py - Setup screen for StreamProxy
+
 from Screens.Screen import Screen
 from Components.ConfigList import ConfigListScreen
 from Components.Button import Button
@@ -6,7 +8,6 @@ from Components.ActionMap import ActionMap
 from Components.config import config, getConfigListEntry
 
 from . import proxy_manager
-from . import _
 
 
 class StreamProxySetup(Screen, ConfigListScreen):
@@ -22,32 +23,31 @@ class StreamProxySetup(Screen, ConfigListScreen):
     def __init__(self, session):
         Screen.__init__(self, session)
         self.session = session
-        self.changed = False  # Flag per tracciare le modifiche
+        self.changed = False  # Flag to track changes
 
-        # Configura i pulsanti
-        self["key_red"] = Button(_("Annulla"))
-        self["key_green"] = Button(_("Salva"))
+        # Configure buttons
+        self["key_red"] = Button("Cancel")
+        self["key_green"] = Button("Save")
 
-        # Configura la lista delle opzioni
+        # Configure the list of options
         ConfigListScreen.__init__(self, [
-            getConfigListEntry(_("Abilita Stream Proxy"), config.plugins.streamproxy.enabled),
-            getConfigListEntry(_("Porta proxy"), config.plugins.streamproxy.port),
-            getConfigListEntry(_("Abilita filtro canali"), config.plugins.streamproxy.filter_enabled),
-            getConfigListEntry(_("Mostra notifiche"), config.plugins.streamproxy.show_notifications),
-            getConfigListEntry(_("Visualizza log"), config.plugins.streamproxy.show_log),
-            getConfigListEntry(_("Numero massimo righe log"), config.plugins.streamproxy.log_max_lines),
-            getConfigListEntry(_("User-Agent personalizzato"), config.plugins.streamproxy.use_custom_useragent),
+            getConfigListEntry("Enable Stream Proxy", config.plugins.streamproxy.enabled),
+            getConfigListEntry("Proxy port", config.plugins.streamproxy.port),
+            getConfigListEntry("Enable channel filter", config.plugins.streamproxy.filter_enabled),
+            getConfigListEntry("Show notifications", config.plugins.streamproxy.show_notifications),
+            getConfigListEntry("Show log", config.plugins.streamproxy.show_log),
+            getConfigListEntry("Maximum log lines", config.plugins.streamproxy.log_max_lines),
+            getConfigListEntry("Custom User-Agent", config.plugins.streamproxy.use_custom_useragent),
         ])
 
-        # Aggiungi il campo custom_useragent solo se use_custom_useragent è
-        # abilitato
+        # Add custom_useragent field only if use_custom_useragent is enabled
         if config.plugins.streamproxy.use_custom_useragent.value:
             self["config"].list.append(
                 getConfigListEntry(
-                    _("User-Agent"),
+                    "User-Agent",
                     config.plugins.streamproxy.custom_useragent))
 
-        # Configura le azioni dei pulsanti
+        # Configure button actions
         self["actions"] = ActionMap(["SetupActions", "ColorActions"],
                                     {
             "green": self.save,
@@ -62,29 +62,29 @@ class StreamProxySetup(Screen, ConfigListScreen):
             self.useragentChanged)
 
     def layoutFinished(self):
-        self.setTitle(_("StreamProxy Setup"))
+        self.setTitle("StreamProxy Setup")
 
     def useragentChanged(self, configElement):
-        # Aggiorna la lista quando cambia use_custom_useragent
+        # Update the list when use_custom_useragent changes
         self["config"].list = [
-            getConfigListEntry(_("Abilita Stream Proxy"), config.plugins.streamproxy.enabled),
-            getConfigListEntry(_("Porta proxy"), config.plugins.streamproxy.port),
-            getConfigListEntry(_("Abilita filtro canali"), config.plugins.streamproxy.filter_enabled),
-            getConfigListEntry(_("Mostra notifiche"), config.plugins.streamproxy.show_notifications),
-            getConfigListEntry(_("Visualizza log"), config.plugins.streamproxy.show_log),
-            getConfigListEntry(_("Numero massimo righe log"), config.plugins.streamproxy.log_max_lines),
-            getConfigListEntry(_("User-Agent personalizzato"), config.plugins.streamproxy.use_custom_useragent),
+            getConfigListEntry("Enable Stream Proxy", config.plugins.streamproxy.enabled),
+            getConfigListEntry("Proxy port", config.plugins.streamproxy.port),
+            getConfigListEntry("Enable channel filter", config.plugins.streamproxy.filter_enabled),
+            getConfigListEntry("Show notifications", config.plugins.streamproxy.show_notifications),
+            getConfigListEntry("Show log", config.plugins.streamproxy.show_log),
+            getConfigListEntry("Maximum log lines", config.plugins.streamproxy.log_max_lines),
+            getConfigListEntry("Custom User-Agent", config.plugins.streamproxy.use_custom_useragent),
         ]
         if configElement.value:
             self["config"].list.append(
                 getConfigListEntry(
-                    _("User-Agent"),
+                    "User-Agent",
                     config.plugins.streamproxy.custom_useragent))
         self["config"].l.setList(self["config"].list)
 
     def save(self):
         self.saveAll()
-        self.changed = True  # Imposta il flag delle modifiche
+        self.changed = True
 
         if config.plugins.streamproxy.enabled.value:
             proxy_manager.start_proxy()
@@ -92,12 +92,12 @@ class StreamProxySetup(Screen, ConfigListScreen):
             proxy_manager.stop_proxy()
 
         config.plugins.streamproxy.save()
-        self.close(self.changed)  # Passa il flag delle modifiche alla callback
+        self.close(self.changed)  # Pass the changed flag to the callback
 
     def cancel(self):
         for x in self["config"].list:
             x[1].cancel()
-        # Passa il flag delle modifiche anche in caso di annullamento
+        # Pass the changed flag even on cancel
         self.close(self.changed)
 
     def keySave(self):

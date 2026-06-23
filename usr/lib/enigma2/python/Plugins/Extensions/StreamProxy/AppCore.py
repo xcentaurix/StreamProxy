@@ -2182,7 +2182,7 @@ def proxy_m3u(request=None, **kwargs):
         }
 
     try:
-        # Extract custom headers from parameters (h_User-Agent, h_Referer,
+        # Extract custom headers from parameters (User-Agent, h_Referer,
         # etc.)
         custom_headers = {
             unquote(key[2:]).replace("_", "-"): unquote(value).strip()

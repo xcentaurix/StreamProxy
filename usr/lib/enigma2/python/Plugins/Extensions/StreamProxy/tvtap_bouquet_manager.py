@@ -100,8 +100,8 @@ class TVTapBouquetManager:
                         channels = self._parse_bouquet_file(bouquet_file)
                         found_channels.update(channels)
                         enhanced_log(
-                            "Scanned bouquet: %s - %d TVTap channels" % (bouquet_file, len(channels)),
-                            "DEBUG")
+                            "Scanned bouquet: %s - %d TVTap channels" %
+                            (bouquet_file, len(channels)), "DEBUG")
                     except Exception as e:
                         enhanced_log(
                             "Error scanning %s: %s" % (bouquet_file, e),
@@ -111,8 +111,8 @@ class TVTapBouquetManager:
                 self.tvtap_channels = found_channels
 
             enhanced_log(
-                "Scan completed: %d TVTap channels found" % len(found_channels),
-                "INFO")
+                "Scan completed: %d TVTap channels found" %
+                len(found_channels), "INFO")
 
         except Exception as e:
             enhanced_log("Bouquet scan error: %s" % e, "ERROR")
@@ -136,8 +136,9 @@ class TVTapBouquetManager:
                         service_ref = channel_info['service_ref']
                         channels[service_ref] = channel_info
                         enhanced_log(
-                            "TVTap channel found: %s" % channel_info.get('name', 'Unknown'),
-                            "DEBUG")
+                            "TVTap channel found: %s" %
+                            channel_info.get(
+                                'name', 'Unknown'), "DEBUG")
                 except Exception as e:
                     enhanced_log("Error parsing service line: %s" % e, "DEBUG")
 
@@ -506,11 +507,13 @@ class TVTapBouquetManager:
             return None
 
         # Build proxy URL
-        proxy_url = "%s/proxy/m3u?url=%s" % (base_proxy_url, quote(resolved_url))
+        proxy_url = "%s/proxy/m3u?url=%s" % (base_proxy_url,
+                                             quote(resolved_url))
 
         enhanced_log(
-            "TVTap proxy URL generated for: %s" % channel_info.get('name', 'Unknown'),
-            "DEBUG")
+            "TVTap proxy URL generated for: %s" %
+            channel_info.get(
+                'name', 'Unknown'), "DEBUG")
 
         return proxy_url
 
@@ -528,9 +531,8 @@ class TVTapBouquetManager:
 
             if expired_keys:
                 enhanced_log(
-                    "Removed %d expired TVTap cache entries" % len(expired_keys),
-                    "INFO"
-                )
+                    "Removed %d expired TVTap cache entries" %
+                    len(expired_keys), "INFO")
 
     def get_stats(self):
         """Return manager statistics."""

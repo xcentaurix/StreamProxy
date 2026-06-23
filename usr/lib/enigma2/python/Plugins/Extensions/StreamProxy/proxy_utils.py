@@ -49,7 +49,8 @@ def setup_proxies():
             "INFO",
             "PROXY")
         for proxy in raw_proxy_list:
-            # Recognise and automatically convert to socks5h for remote DNS resolution
+            # Recognise and automatically convert to socks5h for remote DNS
+            # resolution
             final_proxy_url = proxy
             if proxy.startswith('socks5://'):
                 final_proxy_url = 'socks5h' + proxy[len('socks5'):]
@@ -194,7 +195,8 @@ def create_robust_session():
         session.mount("http://", adapter)
         session.mount("https://", adapter)
     except Exception:
-        # On Enigma2, urllib3.util.retry may be missing: fallback without advanced retry
+        # On Enigma2, urllib3.util.retry may be missing: fallback without
+        # advanced retry
         pass
 
     return session
@@ -269,7 +271,8 @@ def make_persistent_request(
     MAX_KEEP_ALIVE_REQUESTS = 10
     request_headers = {
         'Connection': 'keep-alive',
-        'Keep-Alive': 'timeout=%d, max=%d' % (KEEP_ALIVE_TIMEOUT, MAX_KEEP_ALIVE_REQUESTS)}
+        'Keep-Alive': 'timeout=%d, max=%d' % (KEEP_ALIVE_TIMEOUT,
+                                              MAX_KEEP_ALIVE_REQUESTS)}
     if headers:
         request_headers.update(headers)
     try:

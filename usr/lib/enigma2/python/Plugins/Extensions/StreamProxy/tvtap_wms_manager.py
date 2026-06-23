@@ -153,35 +153,35 @@ class TVTapWMSManager:
                     )
                     return datetime.now()  # force immediate refresh
 
-                # Calculate expiration - server uses UTC, system uses local time
+                # Calculate expiration - server uses UTC, system uses local
+                # time
                 now = datetime.now()
 
-                real_expires_at = server_time + timedelta(minutes=valid_minutes)
+                real_expires_at = server_time + \
+                    timedelta(minutes=valid_minutes)
 
                 # Adjust for UTC+1 (Italy)
                 real_expires_at = real_expires_at + timedelta(hours=1)
 
                 enhanced_log(
                     f"Server time: {server_time} UTC, Now: {now}, Expires: {real_expires_at}",
-                    "DEBUG"
-                )
+                    "DEBUG")
 
                 # Check if authSign is too old (>24h)
                 age_hours = (now - server_time).total_seconds() / 3600
 
                 if age_hours > 24:
                     enhanced_log(
-                        f"wmsAuthSign too old! Age: {age_hours:.1f}h, forcing refresh",
-                        "WARNING"
-                    )
+                        f"wmsAuthSign too old! Age: {
+                            age_hours:.1f}h, forcing refresh",
+                        "WARNING")
                     return now
 
                 # Check if already expired
                 if real_expires_at <= now:
                     enhanced_log(
                         f"wmsAuthSign expired! Expiry: {real_expires_at}, Now: {now}",
-                        "WARNING"
-                    )
+                        "WARNING")
                     return now
 
                 enhanced_log(
@@ -198,8 +198,7 @@ class TVTapWMSManager:
 
                 enhanced_log(
                     f"Fallback expiry from validminutes: {expires_at} ({valid_minutes} min)",
-                    "DEBUG"
-                )
+                    "DEBUG")
 
                 return expires_at
 
@@ -248,7 +247,8 @@ class TVTapWMSManager:
             # If wmsAuthSign exists, validate it first
             if existing_authsign:
                 decoded_info = self.decode_wms_authsign(existing_authsign)
-                expires_at = self.calculate_expiry_from_authsign(existing_authsign)
+                expires_at = self.calculate_expiry_from_authsign(
+                    existing_authsign)
 
                 now = datetime.now()
                 time_to_expiry = (expires_at - now).total_seconds()
@@ -256,9 +256,10 @@ class TVTapWMSManager:
                 # If valid for more than 2 minutes, reuse it
                 if time_to_expiry > 120:
                     enhanced_log(
-                        f"✅ Existing wmsAuthSign valid for {time_to_expiry / 60:.1f} min, reusing it",
-                        "INFO"
-                    )
+                        f"✅ Existing wmsAuthSign valid for {
+                            time_to_expiry /
+                            60:.1f} min, reusing it",
+                        "INFO")
 
                     cache_data = {
                         'resolved_url': original_url,
@@ -280,9 +281,10 @@ class TVTapWMSManager:
 
                 else:
                     enhanced_log(
-                        f"⚠️ wmsAuthSign expires in {time_to_expiry / 60:.1f} min, regenerating",
-                        "WARNING"
-                    )
+                        f"⚠️ wmsAuthSign expires in {
+                            time_to_expiry /
+                            60:.1f} min, regenerating",
+                        "WARNING")
 
             # FORCE REGENERATION OF wmsAuthSign VIA TVTap API
             enhanced_log(
@@ -302,7 +304,8 @@ class TVTapWMSManager:
             # USE TVTap API TO GET FRESH STREAM
             fresh_stream_url = self._get_fresh_tvtap_stream(channel_to_search)
 
-            if not fresh_stream_url or not self.is_wms_tvtap_url(fresh_stream_url):
+            if not fresh_stream_url or not self.is_wms_tvtap_url(
+                    fresh_stream_url):
                 enhanced_log("❌ Unable to get stream from TVTap API", "ERROR")
                 return None
 
@@ -460,7 +463,8 @@ class TVTapWMSManager:
                     ch_name_lower = ch['name'].lower().replace(' ', '')
                     if ch_name_lower in url_lower:
                         enhanced_log(
-                            f"Channel name found (static match): {ch['name']}", "DEBUG")
+                            f"Channel name found (static match): {
+                                ch['name']}", "DEBUG")
                         return ch['name']
             except Exception as e:
                 enhanced_log(f"Static list fallback failed: {e}", "DEBUG")
@@ -526,9 +530,9 @@ class TVTapWMSManager:
                 return None
 
             enhanced_log(
-                f"✅ Channel found: {found_channel.get('name')} (ID: {channel_id})",
-                "INFO"
-            )
+                f"✅ Channel found: {
+                    found_channel.get('name')} (ID: {channel_id})",
+                "INFO")
 
             # Get stream URL
             enhanced_log(
@@ -608,9 +612,9 @@ class TVTapWMSManager:
 
             if expired_keys:
                 enhanced_log(
-                    f"Cleaned {len(expired_keys)} expired TVTap WMS cache entries",
-                    "INFO"
-                )
+                    f"Cleaned {
+                        len(expired_keys)} expired TVTap WMS cache entries",
+                    "INFO")
 
     def get_stats(self):
         """Returns manager statistics."""

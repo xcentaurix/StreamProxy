@@ -2,6 +2,14 @@
 
 from __future__ import absolute_import
 
+try:
+    from Crypto.Cipher import AES
+    CRYPTO_AVAILABLE = True
+except ImportError:
+    CRYPTO_AVAILABLE = False
+
+print("[StreamProxy] Plugin init")
+
 __license__ = "GPL-v2"
 __version__ = "1.0_beta"
 
@@ -31,9 +39,3 @@ def _(txt):
 
 localeInit()
 language.addCallback(localeInit)
-
-
-import importlib.util  # noqa: F401
-CRYPTO_AVAILABLE = importlib.util.find_spec("Crypto.Cipher.AES") is not None
-print("[StreamProxy] Plugin init")
-

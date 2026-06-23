@@ -173,15 +173,15 @@ class TVTapWMSManager:
 
                 if age_hours > 24:
                     enhanced_log(
-                        "wmsAuthSign too old! Age: %.1fh, forcing refresh" % age_hours,
-                        "WARNING")
+                        "wmsAuthSign too old! Age: %.1fh, forcing refresh" %
+                        age_hours, "WARNING")
                     return now
 
                 # Check if already expired
                 if real_expires_at <= now:
                     enhanced_log(
-                        "wmsAuthSign expired! Expiry: %s, Now: %s" % (real_expires_at, now),
-                        "WARNING")
+                        "wmsAuthSign expired! Expiry: %s, Now: %s" %
+                        (real_expires_at, now), "WARNING")
                     return now
 
                 enhanced_log(
@@ -257,9 +257,8 @@ class TVTapWMSManager:
                 # If valid for more than 2 minutes, reuse it
                 if time_to_expiry > 120:
                     enhanced_log(
-                        "Existing wmsAuthSign valid for %.1f min, reusing it" % (
-                            time_to_expiry / 60),
-                        "INFO")
+                        "Existing wmsAuthSign valid for %.1f min, reusing it" %
+                        (time_to_expiry / 60), "INFO")
 
                     cache_data = {
                         'resolved_url': original_url,
@@ -390,9 +389,8 @@ class TVTapWMSManager:
         """Starts background refresh with wmsAuthSign regeneration."""
         def refresh_worker():
             try:
-                enhanced_log(
-                    "Background refresh TVTap WMS URL: %s..." % original_url[:50],
-                    "DEBUG")
+                enhanced_log("Background refresh TVTap WMS URL: %s..." %
+                             original_url[:50], "DEBUG")
                 time.sleep(5)  # Small delay
 
                 # Remove from cache to force regeneration
@@ -418,7 +416,9 @@ class TVTapWMSManager:
                         "WARNING")
 
             except Exception as e:
-                enhanced_log("Error in WMS background refresh: %s" % e, "ERROR")
+                enhanced_log(
+                    "Error in WMS background refresh: %s" %
+                    e, "ERROR")
 
         thread = threading.Thread(target=refresh_worker, daemon=True)
         thread.start()
@@ -439,8 +439,8 @@ class TVTapWMSManager:
                         'it-', '').replace('.stream', '')
                     channel_name = channel_name.replace('-', ' ').title()
                     enhanced_log(
-                        "Channel name extracted (it- pattern): %s" % channel_name,
-                        "DEBUG")
+                        "Channel name extracted (it- pattern): %s" %
+                        channel_name, "DEBUG")
                     return channel_name
 
             # Attempt 2: filename without extension
@@ -468,8 +468,8 @@ class TVTapWMSManager:
                     ch_name_lower = ch['name'].lower().replace(' ', '')
                     if ch_name_lower in url_lower:
                         enhanced_log(
-                            "Channel name found (static match): %s" % ch['name'],
-                            "DEBUG")
+                            "Channel name found (static match): %s" %
+                            ch['name'], "DEBUG")
                         return ch['name']
             except Exception as e:
                 enhanced_log("Static list fallback failed: %s" % e, "DEBUG")
@@ -597,12 +597,12 @@ class TVTapWMSManager:
             return None
 
         # Build proxy URL
-        proxy_url = "%s/proxy/m3u?url=%s" % (base_proxy_url, quote(resolved_url))
+        proxy_url = "%s/proxy/m3u?url=%s" % (base_proxy_url,
+                                             quote(resolved_url))
 
         enhanced_log(
-            "TVTap WMS proxy URL generated for: %s" % (channel_name or 'Unknown'),
-            "DEBUG"
-        )
+            "TVTap WMS proxy URL generated for: %s" %
+            (channel_name or 'Unknown'), "DEBUG")
         return proxy_url
 
     def cleanup_expired_cache(self):
@@ -618,8 +618,8 @@ class TVTapWMSManager:
 
             if expired_keys:
                 enhanced_log(
-                    "Cleaned %d expired TVTap WMS cache entries" % len(expired_keys),
-                    "INFO")
+                    "Cleaned %d expired TVTap WMS cache entries" %
+                    len(expired_keys), "INFO")
 
     def get_stats(self):
         """Returns manager statistics."""

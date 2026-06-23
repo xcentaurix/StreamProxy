@@ -111,9 +111,8 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
             header_type = fmp4_content[4:8]
             if header_type not in [b'ftyp', b'styp', b'moof', b'mdat']:
                 enhanced_log(
-                    "⚠️ [FMP4_CONVERT] Unrecognised header: %s, trying anyway" % header_type,
-                    "WARNING",
-                    "proxy_ts")
+                    "⚠️ [FMP4_CONVERT] Unrecognised header: %s, trying anyway" %
+                    header_type, "WARNING", "proxy_ts")
 
         enhanced_log(
             "🔄 [FMP4_CONVERT] Processing %d bytes of fMP4" % len(fmp4_content),
@@ -129,8 +128,7 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
                 enhanced_log(
                     "✅ [FMP4_DIRECT] Freeshot: direct fMP4 delivery (optimal for Enigma2)",
                     "INFO",
-                    "proxy_ts"
-                )
+                    "proxy_ts")
 
                 enhanced_log(
                     "📊 [FMP4_DIRECT] Size: %d bytes" % len(fmp4_content),
@@ -147,17 +145,13 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
 
             if init_segment:
                 enhanced_log(
-                    "📦 [FMP4_CONVERT] Using init segment: %d bytes" % len(init_segment),
-                    "DEBUG",
-                    "proxy_ts"
-                )
+                    "📦 [FMP4_CONVERT] Using init segment: %d bytes" %
+                    len(init_segment), "DEBUG", "proxy_ts")
                 init_data = init_segment
             else:
                 enhanced_log(
-                    "⚠️ [FMP4_CONVERT] Missing init segment for stream %s" % stream_id,
-                    "WARNING",
-                    "proxy_ts"
-                )
+                    "⚠️ [FMP4_CONVERT] Missing init segment for stream %s" %
+                    stream_id, "WARNING", "proxy_ts")
 
         ts_packets = []
 
@@ -185,7 +179,8 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
             0x2A, 0xB1, 0x04, 0xB2
         ])
 
-        pat_padded = pat_payload + b'\xFF' * (TS_PAYLOAD_SIZE - len(pat_payload))
+        pat_padded = pat_payload + b'\xFF' * \
+            (TS_PAYLOAD_SIZE - len(pat_payload))
         pat_header = bytes([0x47, 0x40, 0x00, 0x10])  # PAT with PUSI=1
         pat_packet = pat_header + pat_padded
         ts_packets.append(pat_packet)
@@ -211,7 +206,8 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
             0x2F, 0x44, 0xB9, 0x9B
         ])
 
-        pmt_padded = pmt_payload + b'\xFF' * (TS_PAYLOAD_SIZE - len(pmt_payload))
+        pmt_padded = pmt_payload + b'\xFF' * \
+            (TS_PAYLOAD_SIZE - len(pmt_payload))
         pmt_header = bytes([0x47, 0x50, 0x00, 0x10])  # PMT with PUSI=1
         pmt_packet = pmt_header + pmt_padded
         ts_packets.append(pmt_packet)
@@ -226,10 +222,8 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
             # Init segment MUST be processed for correct video metadata
             payload_data = init_data + fmp4_content
             enhanced_log(
-                "📦 [FMP4_CONVERT] Combined init (%d) + payload (%d) = %d bytes" % (
-                    len(init_data), len(fmp4_content), len(payload_data)),
-                "DEBUG",
-                "proxy_ts")
+                "📦 [FMP4_CONVERT] Combined init (%d) + payload (%d) = %d bytes" %
+                (len(init_data), len(fmp4_content), len(payload_data)), "DEBUG", "proxy_ts")
         else:
             # Without init segment, video may not work
             payload_data = fmp4_content
@@ -238,7 +232,8 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
                 "WARNING",
                 "proxy_ts")
 
-        base_timestamp = int(time.time() * 90000) & 0x1FFFFFFFF  # 33-bit timestamp
+        base_timestamp = int(time.time() *
+                             90000) & 0x1FFFFFFFF  # 33-bit timestamp
 
         video_continuity = 2  # Start from 2 (after PAT and PMT)
         audio_continuity = 0
@@ -270,7 +265,8 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
 
                 # Available space for data
                 adaptation_field_length = 7
-                available_space = TS_PAYLOAD_SIZE - adaptation_field_length - len(pes_header)
+                available_space = TS_PAYLOAD_SIZE - \
+                    adaptation_field_length - len(pes_header)
                 chunk = payload_data[pos:pos + available_space]
 
                 # Adaptation field with PCR
@@ -286,7 +282,8 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
                 ])
 
                 packet_payload = pes_header + chunk
-                if len(packet_payload) < TS_PAYLOAD_SIZE - adaptation_field_length:
+                if len(packet_payload) < TS_PAYLOAD_SIZE - \
+                        adaptation_field_length:
                     packet_payload += b'\xFF' * (
                         TS_PAYLOAD_SIZE - adaptation_field_length - len(packet_payload))
 
@@ -354,7 +351,8 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
 
             # Padding if needed
             if len(audio_payload) < TS_PAYLOAD_SIZE:
-                audio_payload = audio_payload + b'\xFF' * (TS_PAYLOAD_SIZE - len(audio_payload))
+                audio_payload = audio_payload + b'\xFF' * \
+                    (TS_PAYLOAD_SIZE - len(audio_payload))
 
             # TS header for audio
             audio_ts_header = bytes([
@@ -402,10 +400,8 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
             )
 
         enhanced_log(
-            "✅ [FMP4_CONVERT] Conversion completed: %d TS bytes" % len(ts_stream),
-            "INFO",
-            "proxy_ts"
-        )
+            "✅ [FMP4_CONVERT] Conversion completed: %d TS bytes" %
+            len(ts_stream), "INFO", "proxy_ts")
 
         return ts_stream
 
@@ -441,8 +437,20 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
             )
 
             # Video packet with full PES header and PTS
-            pes_header = bytes([0x00, 0x00, 0x01, 0xE0, 0x00, 0x00,
-                                0x84, 0x80, 0x05, 0x21, 0x00, 0x01, 0x00, 0x01])
+            pes_header = bytes([0x00,
+                                0x00,
+                                0x01,
+                                0xE0,
+                                0x00,
+                                0x00,
+                                0x84,
+                                0x80,
+                                0x05,
+                                0x21,
+                                0x00,
+                                0x01,
+                                0x00,
+                                0x01])
             video_payload = pes_header + b'\xFF' * (184 - len(pes_header))
             video = bytes([0x47, 0x41, 0x00, 0x10]) + video_payload
 
@@ -454,25 +462,20 @@ def convert_fmp4_to_ts(fmp4_content, stream_id=None):
 
             fallback_ts = pat + pmt + video + audio
             enhanced_log(
-                "🔧 [FMP4_CONVERT] Complete TS fallback generated: %d bytes" % len(fallback_ts),
-                "INFO",
-                "proxy_ts")
+                "🔧 [FMP4_CONVERT] Complete TS fallback generated: %d bytes" %
+                len(fallback_ts), "INFO", "proxy_ts")
             return fallback_ts
         except Exception as fallback_error:
             # Emergency fallback
             emergency_ts = b'\x47\x1F\xFF\x10' + b'\xFF' * 184
 
             enhanced_log(
-                "[FMP4_CONVERT] Complete TS fallback error: %s" % fallback_error,
-                "WARNING",
-                "proxy_ts"
-            )
+                "[FMP4_CONVERT] Complete TS fallback error: %s" %
+                fallback_error, "WARNING", "proxy_ts")
 
             enhanced_log(
-                "🆘 [FMP4_CONVERT] Emergency fallback: %d bytes" % len(emergency_ts),
-                "WARNING",
-                "proxy_ts"
-            )
+                "🆘 [FMP4_CONVERT] Emergency fallback: %d bytes" %
+                len(emergency_ts), "WARNING", "proxy_ts")
 
             return emergency_ts
 
@@ -508,7 +511,8 @@ def get_non_ts_content_type(url, content=None):
         return "text/vtt"
     if url_lower.endswith(".srt"):
         return "application/x-subrip"
-    if url_lower.endswith(".ttml") or url_lower.endswith(".dfxp") or url_lower.endswith(".xml"):
+    if url_lower.endswith(".ttml") or url_lower.endswith(
+            ".dfxp") or url_lower.endswith(".xml"):
         return "application/ttml+xml"
 
     if content:
@@ -555,16 +559,14 @@ def decrypt_ts_if_needed(ts_content, stream_id, headers, segment_url=None):
     non_ts_content_type = get_non_ts_content_type(segment_url, ts_content)
     if non_ts_content_type:
         enhanced_log(
-            "[DECRYPT_TS] Non-TS resource detected (%s), skipping decryption" % non_ts_content_type,
-            "INFO",
-            "AppCore")
+            "[DECRYPT_TS] Non-TS resource detected (%s), skipping decryption" %
+            non_ts_content_type, "INFO", "AppCore")
         return ts_content
 
     if len(ts_content) % 16 != 0:
         enhanced_log(
-            "[DECRYPT_TS] Length %d not multiple of 16, incomplete/unaligned segment" % len(ts_content),
-            "WARNING",
-            "AppCore")
+            "[DECRYPT_TS] Length %d not multiple of 16, incomplete/unaligned segment" %
+            len(ts_content), "WARNING", "AppCore")
         return make_fallback_ts_segment()
 
     # Log first byte for debugging
@@ -614,9 +616,8 @@ def decrypt_ts_if_needed(ts_content, stream_id, headers, segment_url=None):
             except Exception as iv_error:
                 iv = iv.encode('latin-1')
                 enhanced_log(
-                    "[DECRYPT_TS] IV not hex, using latin-1 bytes: %s" % iv_error,
-                    "DEBUG",
-                    "AppCore")
+                    "[DECRYPT_TS] IV not hex, using latin-1 bytes: %s" %
+                    iv_error, "DEBUG", "AppCore")
                 enhanced_log(
                     "🔢 [DECRYPT_TS] IV converted from string: %s" % iv.hex(),
                     "DEBUG",
@@ -674,9 +675,8 @@ def decrypt_ts_if_needed(ts_content, stream_id, headers, segment_url=None):
                         b == padding_length for b in decrypted[-padding_length:]):
                     decrypted = decrypted[:-padding_length]
                     enhanced_log(
-                        "✅ [DECRYPT_TS] PKCS7 padding removed: %d bytes" % padding_length,
-                        "INFO",
-                        "AppCore")
+                        "✅ [DECRYPT_TS] PKCS7 padding removed: %d bytes" %
+                        padding_length, "INFO", "AppCore")
                 else:
                     enhanced_log(
                         "⚠️ [DECRYPT_TS] Invalid padding, keeping original content",
@@ -691,9 +691,8 @@ def decrypt_ts_if_needed(ts_content, stream_id, headers, segment_url=None):
         # Verify final sync byte
         if len(decrypted) > 0:
             enhanced_log(
-                "🔍 [DECRYPT_TS] First byte after decryption: 0x%02x" % decrypted[0],
-                "INFO",
-                "AppCore")
+                "🔍 [DECRYPT_TS] First byte after decryption: 0x%02x" %
+                decrypted[0], "INFO", "AppCore")
 
             if is_valid_ts_payload(decrypted):
                 enhanced_log(
@@ -703,9 +702,8 @@ def decrypt_ts_if_needed(ts_content, stream_id, headers, segment_url=None):
                 return decrypted
             else:
                 enhanced_log(
-                    "⚠️ [DECRYPT_TS] Sync byte invalid after decryption: 0x%02x" % decrypted[0],
-                    "WARNING",
-                    "AppCore")
+                    "⚠️ [DECRYPT_TS] Sync byte invalid after decryption: 0x%02x" %
+                    decrypted[0], "WARNING", "AppCore")
                 # Try without removing padding
                 if AES_MODULE == "cryptography":
                     cipher = Cipher(
@@ -1082,15 +1080,12 @@ def make_enigma2_request(url, headers=None, timeout=None, **kwargs):
                 time.sleep(sleep_time * (attempt + 1))
                 continue
             if is_freeshot_url:
-                enhanced_log(
-                    "⚠️ [FREESHOT_TIMEOUT] Timeout after %d attempts: %s" % (max_attempts, url[-50:]),
-                    "WARNING",
-                    "AppCore")
+                enhanced_log("⚠️ [FREESHOT_TIMEOUT] Timeout after %d attempts: %s" % (
+                    max_attempts, url[-50:]), "WARNING", "AppCore")
             else:
                 enhanced_log(
-                    "❌ Request error after %d attempts: %s" % (max_attempts, e),
-                    "ERROR",
-                    "AppCore")
+                    "❌ Request error after %d attempts: %s" %
+                    (max_attempts, e), "ERROR", "AppCore")
             raise
         except requests.exceptions.HTTPError as e:
             # For specific HTTP errors, do not retry
@@ -1154,10 +1149,8 @@ def extract_custom_headers_from_url(url):
                 key = unquote(key).strip()
                 value = unquote(value).strip()
                 headers[key] = value
-                enhanced_log(
-                    "✅ [CUSTOM_HEADER] Extracted: %s = %s..." % (key, value[:50]),
-                    "DEBUG",
-                    "AppCore")
+                enhanced_log("✅ [CUSTOM_HEADER] Extracted: %s = %s..." % (
+                    key, value[:50]), "DEBUG", "AppCore")
 
         return clean_url, headers
     except Exception as e:
@@ -1186,17 +1179,15 @@ def resolve_m3u8_link(url, headers=None, **kwargs):
     clean_url, custom_headers = extract_custom_headers_from_url(url)
     if custom_headers:
         enhanced_log(
-            "✅ [CUSTOM_HEADERS] Extracted %d custom headers" % len(custom_headers),
-            "INFO",
-            "AppCore")
+            "✅ [CUSTOM_HEADERS] Extracted %d custom headers" %
+            len(custom_headers), "INFO", "AppCore")
         url = clean_url  # Use clean URL without fragment
 
     current_headers = headers.copy() if headers else {}
     current_headers.update(custom_headers)
     enhanced_log(
-        "🔍 [RESOLVE_HEADERS] Initial headers: %d elements" % len(current_headers),
-        "DEBUG",
-        "AppCore")
+        "🔍 [RESOLVE_HEADERS] Initial headers: %d elements" %
+        len(current_headers), "DEBUG", "AppCore")
 
     # 1. Extract header from URL
     enhanced_log(
@@ -1234,10 +1225,8 @@ def resolve_m3u8_link(url, headers=None, **kwargs):
             "🔍 [RESOLVE_HEADERS] Clean URL: %s..." % clean_url[:50],
             "DEBUG",
             "AppCore")
-        enhanced_log(
-            "🔍 [RESOLVE_HEADERS] Header parameters: %s..." % header_params[:100],
-            "DEBUG",
-            "AppCore")
+        enhanced_log("🔍 [RESOLVE_HEADERS] Header parameters: %s..." %
+                     header_params[:100], "DEBUG", "AppCore")
 
         for param in header_params.split('&'):
             if param.startswith('h_'):
@@ -1247,15 +1236,12 @@ def resolve_m3u8_link(url, headers=None, **kwargs):
                         key = unquote(key_value[0]).replace('_', '-')
                         value = unquote(key_value[1])
                         extracted_headers[key] = value
-                        enhanced_log(
-                            "✅ [RESOLVE_HEADERS] Extracted header: %s = %s..." % (key, value[:20]),
-                            "DEBUG",
-                            "AppCore")
+                        enhanced_log("✅ [RESOLVE_HEADERS] Extracted header: %s = %s..." % (
+                            key, value[:20]), "DEBUG", "AppCore")
                 except Exception as e:
                     enhanced_log(
-                        "❌ [RESOLVE_HEADERS] Error extracting %s: %s" % (param, e),
-                        "ERROR",
-                        "AppCore")
+                        "❌ [RESOLVE_HEADERS] Error extracting %s: %s" %
+                        (param, e), "ERROR", "AppCore")
 
     final_headers = {**current_headers, **extracted_headers}
     enhanced_log(
@@ -1355,7 +1341,8 @@ def resolve_m3u8_link(url, headers=None, **kwargs):
                     "INFO",
                     "AppCore")
                 enhanced_log(
-                    "🎯 [DLHD_FLOW] Final URL: %s" % resolved_dlhd['destination_url'],
+                    "🎯 [DLHD_FLOW] Final URL: %s" %
+                    resolved_dlhd['destination_url'],
                     "INFO",
                     "AppCore")
 
@@ -1668,9 +1655,8 @@ def _get_vavoo_prefetch_entry(m3u_url, wait_timeout=0, consume=True):
         event = entry.get('event')
         if event:
             enhanced_log(
-                "[VAVOO_PREFETCH] Waiting for prefetch for %s up to %ds" % (stream_id, wait_timeout),
-                "INFO",
-                "AppCore")
+                "[VAVOO_PREFETCH] Waiting for prefetch for %s up to %ds" %
+                (stream_id, wait_timeout), "INFO", "AppCore")
             event.wait(wait_timeout)
             entry = VAVOO_M3U8_PREFETCH_CACHE.get(stream_id)
             if not entry:
@@ -1714,15 +1700,13 @@ def _clear_vavoo_resolved_url_cache(reason=""):
         if isinstance(cache, dict):
             cache.clear()
             enhanced_log(
-                "[VAVOO] Resolved URL cache cleared%s" % (': ' + reason if reason else ''),
-                "INFO",
-                "AppCore")
+                "[VAVOO] Resolved URL cache cleared%s" %
+                (': ' + reason if reason else ''), "INFO", "AppCore")
         elif hasattr(vavoo_extractor, "clear_cache"):
             vavoo_extractor.clear_cache()
             enhanced_log(
-                "[VAVOO] Extractor cache cleared%s" % (': ' + reason if reason else ''),
-                "INFO",
-                "AppCore")
+                "[VAVOO] Extractor cache cleared%s" %
+                (': ' + reason if reason else ''), "INFO", "AppCore")
     except Exception as exc:
         enhanced_log(
             "[VAVOO] Error clearing URL cache: %s" % exc,
@@ -1743,9 +1727,8 @@ def prefetch_vavoo_m3u8(m3u_url, headers=None):
     existing = VAVOO_M3U8_PREFETCH_CACHE.get(stream_id)
     if existing and time.time() - existing.get('timestamp', 0) < 20:
         enhanced_log(
-            "⚡ [VAVOO_PREFETCH] Prefetch already available/in progress for %s" % stream_id,
-            "DEBUG",
-            "AppCore")
+            "⚡ [VAVOO_PREFETCH] Prefetch already available/in progress for %s" %
+            stream_id, "DEBUG", "AppCore")
         return True
 
     event = threading.Event()
@@ -1774,9 +1757,8 @@ def prefetch_vavoo_m3u8(m3u_url, headers=None):
                     'event': event,
                 }
                 enhanced_log(
-                    "✅ [VAVOO_PREFETCH] M3U8 ready for %s: %d characters" % (stream_id, len(m3u_content)),
-                    "INFO",
-                    "AppCore")
+                    "✅ [VAVOO_PREFETCH] M3U8 ready for %s: %d characters" %
+                    (stream_id, len(m3u_content)), "INFO", "AppCore")
             else:
                 VAVOO_M3U8_PREFETCH_CACHE.pop(stream_id, None)
                 enhanced_log(
@@ -1935,9 +1917,8 @@ def refresh_freeshot_token(channel_name, old_token):
             return None
 
         enhanced_log(
-            "🔄 [FREESHOT_REFRESH] Refreshing token for channel: %s" % channel_name,
-            "INFO",
-            "AppCore")
+            "🔄 [FREESHOT_REFRESH] Refreshing token for channel: %s" %
+            channel_name, "INFO", "AppCore")
 
         # Map of common Freeshot channels
         channel_mapping = {
@@ -1966,7 +1947,8 @@ def refresh_freeshot_token(channel_name, old_token):
         channel_id = '383' if 'sport-24' in freeshot_channel else '26'
 
         # Extract stream from Freeshot with new token
-        freeshot_url = "https://www.freeshot.live/live-tv/%s/%s" % (freeshot_channel, channel_id)
+        freeshot_url = "https://www.freeshot.live/live-tv/%s/%s" % (
+            freeshot_channel, channel_id)
         enhanced_log(
             "🔄 [FREESHOT_REFRESH] Attempting refresh: %s" % freeshot_url,
             "DEBUG",
@@ -2025,12 +2007,12 @@ def get_stream_id_from_url(url):
             stream_id = hashlib.sha256(
                 ("daddy_%s" % channel_id).encode()).hexdigest()[:12]
             enhanced_log(
-                "🆔 [STREAM_ID] Deterministic stream ID for DaddyLive channel %s: %s" % (channel_id, stream_id),
-                "INFO",
-                "AppCore")
+                "🆔 [STREAM_ID] Deterministic stream ID for DaddyLive channel %s: %s" %
+                (channel_id, stream_id), "INFO", "AppCore")
             return stream_id
 
-    # For VIX, use stable IDs instead of full URL (token/rendition change often)
+    # For VIX, use stable IDs instead of full URL (token/rendition change
+    # often)
     if 'vixsrc.to/tv/' in url or 'vixcloud.co/tv/' in url:
         tv_match = re.search(r'/tv/(\d+)(?:/(\d+))?(?:/(\d+))?', url)
         if tv_match:
@@ -2038,9 +2020,8 @@ def get_stream_id_from_url(url):
             stream_id = hashlib.sha256(
                 ("vix_tv_%s" % tv_key).encode()).hexdigest()[:12]
             enhanced_log(
-                "🆔 [STREAM_ID] Deterministic stream ID for VIX tv %s: %s" % (tv_key, stream_id),
-                "INFO",
-                "AppCore")
+                "🆔 [STREAM_ID] Deterministic stream ID for VIX tv %s: %s" %
+                (tv_key, stream_id), "INFO", "AppCore")
             return stream_id
 
     # For VIX, use playlist ID as base
@@ -2051,9 +2032,8 @@ def get_stream_id_from_url(url):
             stream_id = hashlib.sha256(
                 ("vix_%s" % playlist_id).encode()).hexdigest()[:12]
             enhanced_log(
-                "🆔 [STREAM_ID] Deterministic stream ID for VIX playlist %s: %s" % (playlist_id, stream_id),
-                "INFO",
-                "AppCore")
+                "🆔 [STREAM_ID] Deterministic stream ID for VIX playlist %s: %s" %
+                (playlist_id, stream_id), "INFO", "AppCore")
             return stream_id
 
     # For Freeshot, use channel name as base
@@ -2064,9 +2044,8 @@ def get_stream_id_from_url(url):
             stream_id = hashlib.sha256(
                 ("freeshot_%s" % channel_name).encode()).hexdigest()[:12]
             enhanced_log(
-                "🆔 [STREAM_ID] Deterministic stream ID for Freeshot %s: %s" % (channel_name, stream_id),
-                "INFO",
-                "AppCore")
+                "🆔 [STREAM_ID] Deterministic stream ID for Freeshot %s: %s" %
+                (channel_name, stream_id), "INFO", "AppCore")
             return stream_id
 
     # For VAVOO, extract channel ID
@@ -2077,9 +2056,8 @@ def get_stream_id_from_url(url):
             stream_id = hashlib.sha256(
                 ("vavoo_%s" % channel_id).encode()).hexdigest()[:12]
             enhanced_log(
-                "🆔 [STREAM_ID] Deterministic stream ID for Vavoo %s: %s" % (channel_id, stream_id),
-                "INFO",
-                "AppCore")
+                "🆔 [STREAM_ID] Deterministic stream ID for Vavoo %s: %s" %
+                (channel_id, stream_id), "INFO", "AppCore")
             return stream_id
 
     # For other URLs, use the URL itself as base (less ideal, but stable)
@@ -2204,7 +2182,8 @@ def proxy_m3u(request=None, **kwargs):
         }
 
     try:
-        # Extract custom headers from parameters (h_User-Agent, h_Referer, etc.)
+        # Extract custom headers from parameters (h_User-Agent, h_Referer,
+        # etc.)
         custom_headers = {
             unquote(key[2:]).replace("_", "-"): unquote(value).strip()
             for key, value in kwargs.items()
@@ -2217,12 +2196,12 @@ def proxy_m3u(request=None, **kwargs):
                 "DEBUG",
                 "AppCore")
 
-        # Extract dlhd_masked parameter from request (will be updated after resolve)
+        # Extract dlhd_masked parameter from request (will be updated after
+        # resolve)
         dlhd_masked_param = kwargs.get('dlhd_masked', '0') == '1'
         enhanced_log(
-            "🎭 [DLHD_MASKED] Initial dlhd_masked parameter: %s" % dlhd_masked_param,
-            "DEBUG",
-            "AppCore")
+            "🎭 [DLHD_MASKED] Initial dlhd_masked parameter: %s" %
+            dlhd_masked_param, "DEBUG", "AppCore")
 
         # Deterministic stream ID avoids accidental clearance
         current_stream_id = get_stream_id_from_url(m3u_url)
@@ -2235,9 +2214,8 @@ def proxy_m3u(request=None, **kwargs):
                 if cached_content and cached_m3u8.get(
                         'in_progress') and cached_age < 60:
                     enhanced_log(
-                        "[VAVOO_M3U8_CACHE] Refresh already in progress, reusing last valid playlist (%ds)" % cached_age,
-                        "INFO",
-                        "AppCore")
+                        "[VAVOO_M3U8_CACHE] Refresh already in progress, reusing last valid playlist (%ds)" %
+                        cached_age, "INFO", "AppCore")
                     return {
                         'content': cached_content,
                         'status': 200,
@@ -2245,9 +2223,8 @@ def proxy_m3u(request=None, **kwargs):
                     }
                 if cached_content and cached_age < 6:
                     enhanced_log(
-                        "[VAVOO_M3U8_CACHE] Recent playlist from cache (%ds)" % cached_age,
-                        "INFO",
-                        "AppCore")
+                        "[VAVOO_M3U8_CACHE] Recent playlist from cache (%ds)" %
+                        cached_age, "INFO", "AppCore")
                     return {
                         'content': cached_content,
                         'status': 200,
@@ -2273,15 +2250,13 @@ def proxy_m3u(request=None, **kwargs):
             # Channel change, clear cache to avoid conflicts
             clear_stream_cache()
             enhanced_log(
-                "🧹 [CACHE_CLEAR] Cache cleared for channel change. New stream_id: %s" % current_stream_id,
-                "INFO",
-                "AppCore")
+                "🧹 [CACHE_CLEAR] Cache cleared for channel change. New stream_id: %s" %
+                current_stream_id, "INFO", "AppCore")
         else:
             # If same channel, reuse cache but update timestamp
             enhanced_log(
-                "♻️  [CACHE_REUSE] Same channel (stream_id: %s), reusing cache" % current_stream_id,
-                "INFO",
-                "AppCore")
+                "♻️  [CACHE_REUSE] Same channel (stream_id: %s), reusing cache" %
+                current_stream_id, "INFO", "AppCore")
             # Intelligent JWT token expiry check for DaddyLive
             if 'daddyhd.com' in m3u_url or 'daddylive' in m3u_url:
                 try:
@@ -2300,12 +2275,12 @@ def proxy_m3u(request=None, **kwargs):
                             current_time = time.time()
                             remaining_time = exp_time - current_time
 
-                            # Refresh only if less than 2 minutes remain to expiry
+                            # Refresh only if less than 2 minutes remain to
+                            # expiry
                             if remaining_time < 120:
                                 enhanced_log(
-                                    "🔄 [TOKEN_REFRESH] Token expires in %ds, refresh needed" % int(remaining_time),
-                                    "INFO",
-                                    "AppCore")
+                                    "🔄 [TOKEN_REFRESH] Token expires in %ds, refresh needed" %
+                                    int(remaining_time), "INFO", "AppCore")
 
                                 # Invalidate DLHD cache for this channel
                                 if DLHD_AVAILABLE and dlhd_extractor:
@@ -2318,14 +2293,12 @@ def proxy_m3u(request=None, **kwargs):
                                                     dlhd_extractor, 'cache') and channel_id in dlhd_extractor.cache:
                                                 del dlhd_extractor.cache[channel_id]
                                                 enhanced_log(
-                                                    "🗑️ [DLHD_CACHE] Cache invalidated for channel %s" % channel_id,
-                                                    "INFO",
-                                                    "AppCore")
+                                                    "🗑️ [DLHD_CACHE] Cache invalidated for channel %s" %
+                                                    channel_id, "INFO", "AppCore")
                                     except Exception as cache_error:
                                         enhanced_log(
-                                            "[DLHD_CACHE] Cache invalidation error: %s" % cache_error,
-                                            "DEBUG",
-                                            "AppCore")
+                                            "[DLHD_CACHE] Cache invalidation error: %s" %
+                                            cache_error, "DEBUG", "AppCore")
 
                                 # Remove stream to force new download
                                 del STREAM_KEY_INFO[current_stream_id]
@@ -2340,21 +2313,19 @@ def proxy_m3u(request=None, **kwargs):
                                     "AppCore")
                             else:
                                 enhanced_log(
-                                    "✅ [TOKEN_VALID] Token valid for %ds" % int(remaining_time),
-                                    "DEBUG",
-                                    "AppCore")
+                                    "✅ [TOKEN_VALID] Token valid for %ds" %
+                                    int(remaining_time), "DEBUG", "AppCore")
                         except ImportError:
                             enhanced_log(
                                 "⚠️ [TOKEN_CHECK] PyJWT not available, using time fallback",
                                 "WARNING",
                                 "AppCore")
-                            # Fallback: refresh every 4 minutes if PyJWT not available
+                            # Fallback: refresh every 4 minutes if PyJWT not
+                            # available
                             last_used = stream_info.get('last_used', 0)
                             if time.time() - last_used > 240:
                                 enhanced_log(
-                                    "🔄 [FALLBACK_REFRESH] Fallback refresh after 4 minutes",
-                                    "INFO",
-                                    "AppCore")
+                                    "🔄 [FALLBACK_REFRESH] Fallback refresh after 4 minutes", "INFO", "AppCore")
                                 del STREAM_KEY_INFO[current_stream_id]
                                 is_same_channel = False
                         except Exception as e:
@@ -2402,9 +2373,8 @@ def proxy_m3u(request=None, **kwargs):
             'dlhd_masked',
             '0') == '1' or is_dlhd_domain or is_daddy_domain(m3u_url)
         enhanced_log(
-            "🎭 [DLHD_MASKED] dlhd_masked parameter: %s (auto-detected: %s)" % (dlhd_masked, is_dlhd_domain),
-            "INFO",
-            "AppCore")
+            "🎭 [DLHD_MASKED] dlhd_masked parameter: %s (auto-detected: %s)" %
+            (dlhd_masked, is_dlhd_domain), "INFO", "AppCore")
 
         # Initialize m3u_content before use
         m3u_content = result.get("m3u8_content", "")
@@ -2412,8 +2382,8 @@ def proxy_m3u(request=None, **kwargs):
         current_headers_for_proxy.update(custom_headers or {})
 
         if final_url and is_direct_media_url(final_url):
-            headers_query = "&".join(
-                ["h_%s=%s" % (quote(k), quote(v)) for k, v in current_headers_for_proxy.items()])
+            headers_query = "&".join(["h_%s=%s" % (quote(k), quote(
+                v)) for k, v in current_headers_for_proxy.items()])
             media_stream_id = get_stream_id_from_url(m3u_url)
             encoded_media_url = quote(final_url, safe='')
             proxy_media_url = "http://127.0.0.1:7860/proxy/ts?url=%s&fmp4=1&stream_id=%s" % (
@@ -2431,7 +2401,8 @@ def proxy_m3u(request=None, **kwargs):
                 'redirect_url': proxy_media_url
             }
 
-        # If the resolver (e.g. Vix) hasn't already provided the content, download it
+        # If the resolver (e.g. Vix) hasn't already provided the content,
+        # download it
         if not m3u_content:
             # Reduced timeouts for Enigma2
             timeout_to_use = 6 if 'kiko2.ru' in final_url else get_dynamic_timeout(
@@ -2513,7 +2484,8 @@ def proxy_m3u(request=None, **kwargs):
                     if m3u_response.status_code != 403:
                         current_headers_for_proxy = variant_headers
                         enhanced_log(
-                            "[VAVOO] CDN playlist accepted with headers: %s" % list(
+                            "[VAVOO] CDN playlist accepted with headers: %s" %
+                            list(
                                 variant_headers.keys()),
                             "INFO",
                             "AppCore")
@@ -2544,9 +2516,8 @@ def proxy_m3u(request=None, **kwargs):
                 "AppCore")
 
         enhanced_log(
-            "📄 [M3U8_CONTENT] M3U8 content received (%d characters):" % len(m3u_content),
-            "DEBUG",
-            "AppCore")
+            "📄 [M3U8_CONTENT] M3U8 content received (%d characters):" %
+            len(m3u_content), "DEBUG", "AppCore")
         enhanced_log(
             "📄 [M3U8_CONTENT] First 500 characters: %s" % m3u_content[:500],
             "DEBUG",
@@ -2560,8 +2531,8 @@ def proxy_m3u(request=None, **kwargs):
         )
 
         # CRITICAL: Create query string with headers from resolution
-        headers_query = "&".join(
-            ["h_%s=%s" % (quote(k), quote(v)) for k, v in current_headers_for_proxy.items()])
+        headers_query = "&".join(["h_%s=%s" % (quote(k), quote(
+            v)) for k, v in current_headers_for_proxy.items()])
         stream_id = get_stream_id_from_url(m3u_url)
 
         # CRITICAL: Save stream information for TS segments
@@ -2590,9 +2561,8 @@ def proxy_m3u(request=None, **kwargs):
             existing_headers.update(current_headers_for_proxy or {})
             STREAM_KEY_INFO[stream_id]['headers'] = existing_headers
             enhanced_log(
-                "🔄 [STREAM_INFO] Updated headers for existing stream %s" % stream_id,
-                "DEBUG",
-                "AppCore")
+                "🔄 [STREAM_INFO] Updated headers for existing stream %s" %
+                stream_id, "DEBUG", "AppCore")
             enhanced_log(
                 "📝 [STREAM_INFO] Saved headers: %s" % list(
                     existing_headers.keys()),
@@ -2625,7 +2595,8 @@ def proxy_m3u(request=None, **kwargs):
                             "AppCore")
                 continue
             elif line.startswith("#EXT-X-MAP") and 'URI="' in line:
-                # OPTIMISED SOLUTION: For fMP4, keep EXT-X-MAP for native compatibility
+                # OPTIMISED SOLUTION: For fMP4, keep EXT-X-MAP for native
+                # compatibility
                 uri_match = re.search(r'URI="([^"]+)"', line)
                 if uri_match:
                     init_url = urljoin(base_url, uri_match.group(1))
@@ -2663,7 +2634,8 @@ def proxy_m3u(request=None, **kwargs):
                         modified_m3u8.append(line)
                         continue
                     else:
-                        # For other providers, download and save init segment (original behaviour)
+                        # For other providers, download and save init segment
+                        # (original behaviour)
                         try:
                             init_response = make_persistent_request(
                                 init_url,
@@ -2678,9 +2650,8 @@ def proxy_m3u(request=None, **kwargs):
                                 STREAM_KEY_INFO[stream_id]['init_timestamp'] = time.time(
                                 )
                                 enhanced_log(
-                                    "✅ [INIT_DOWNLOAD] Init segment saved: %d bytes" % len(init_content),
-                                    "INFO",
-                                    "AppCore")
+                                    "✅ [INIT_DOWNLOAD] Init segment saved: %d bytes" %
+                                    len(init_content), "INFO", "AppCore")
 
                             # Remove EXT-X-MAP for compatibility
                             enhanced_log(
@@ -2691,9 +2662,8 @@ def proxy_m3u(request=None, **kwargs):
 
                         except Exception as e:
                             enhanced_log(
-                                "❌ [INIT_DOWNLOAD] Init download error: %s" % e,
-                                "ERROR",
-                                "AppCore")
+                                "❌ [INIT_DOWNLOAD] Init download error: %s" %
+                                e, "ERROR", "AppCore")
                             # Remove EXT-X-MAP even on error
                             continue
                 else:
@@ -2735,9 +2705,8 @@ def proxy_m3u(request=None, **kwargs):
 
                 if is_subtitle_resource(segment_url):
                     enhanced_log(
-                        "[SUBTITLE_SKIP] Subtitle segment discarded: %s" % line,
-                        "INFO",
-                        "AppCore")
+                        "[SUBTITLE_SKIP] Subtitle segment discarded: %s" %
+                        line, "INFO", "AppCore")
                     continue
 
                 # Improved validation for DLHD segments
@@ -2761,11 +2730,11 @@ def proxy_m3u(request=None, **kwargs):
                             '.css',
                             '.js']):
                         enhanced_log(
-                            "⚠️ [SEGMENT_SKIP] Non-video segment discarded (DLHD): %s" % line,
-                            "WARNING",
-                            "AppCore")
+                            "⚠️ [SEGMENT_SKIP] Non-video segment discarded (DLHD): %s" %
+                            line, "WARNING", "AppCore")
                         continue
-                    # Accept ALL other segments from DLHD domains (including encoded ones)
+                    # Accept ALL other segments from DLHD domains (including
+                    # encoded ones)
                     enhanced_log(
                         "✅ [DLHD_SEGMENT] DLHD segment accepted: %s..." % line[:50],
                         "DEBUG",
@@ -2780,9 +2749,8 @@ def proxy_m3u(request=None, **kwargs):
                             '.css',
                             '.json']):
                         enhanced_log(
-                            "⚠️ [SEGMENT_SKIP] Non-video segment discarded: %s" % line,
-                            "WARNING",
-                            "AppCore")
+                            "⚠️ [SEGMENT_SKIP] Non-video segment discarded: %s" %
+                            line, "WARNING", "AppCore")
                         continue
 
                 # Determine if it is a TS, fMP4 or playlist segment
@@ -2824,10 +2792,8 @@ def proxy_m3u(request=None, **kwargs):
 
                     # Specific log for DLHD segments (including encoded ones)
                     if is_dlhd_domain:
-                        enhanced_log(
-                            "🎭 [DLHD_SEGMENT] DLHD segment processed as TS: %s" % segment_url.split('/')[-1][:30],
-                            "INFO",
-                            "AppCore")
+                        enhanced_log("🎭 [DLHD_SEGMENT] DLHD segment processed as TS: %s" % segment_url.split(
+                            '/')[-1][:30], "INFO", "AppCore")
                     if dlhd_masked:
                         proxy_url += "&dlhd_masked=1"
 
@@ -2888,9 +2854,8 @@ def proxy_m3u(request=None, **kwargs):
 
                             if len(video_segments) > 0:
                                 enhanced_log(
-                                    "✅ [M3U8_ALT] Alternative URL with %d video segments" % len(video_segments),
-                                    "INFO",
-                                    "AppCore")
+                                    "✅ [M3U8_ALT] Alternative URL with %d video segments" %
+                                    len(video_segments), "INFO", "AppCore")
 
                                 # Replace content
                                 m3u_content = alt_content
@@ -2903,8 +2868,8 @@ def proxy_m3u(request=None, **kwargs):
                                     parsed_url.netloc,
                                     parsed_url.path.rsplit('/', 1)[0]
                                 )
-                                headers_query = "&".join(
-                                    ["h_%s=%s" % (quote(k), quote(v)) for k, v in current_headers_for_proxy.items()])
+                                headers_query = "&".join(["h_%s=%s" % (quote(k), quote(
+                                    v)) for k, v in current_headers_for_proxy.items()])
 
                                 extract_key_info_from_m3u8(
                                     m3u_content.splitlines(), stream_id, base_url, current_headers_for_proxy, result)
@@ -2922,9 +2887,8 @@ def proxy_m3u(request=None, **kwargs):
 
                                         if is_subtitle_resource(segment_url):
                                             enhanced_log(
-                                                "[SUBTITLE_SKIP] Subtitle segment discarded in alternative M3U8: %s" % line,
-                                                "INFO",
-                                                "AppCore")
+                                                "[SUBTITLE_SKIP] Subtitle segment discarded in alternative M3U8: %s" %
+                                                line, "INFO", "AppCore")
                                             continue
 
                                         # Discard non-video segments
@@ -2946,9 +2910,7 @@ def proxy_m3u(request=None, **kwargs):
                                         modified_m3u8.append(line)
 
                                 enhanced_log(
-                                    "✅ [M3U8_ALT] Alternative M3U8 processed successfully",
-                                    "INFO",
-                                    "AppCore")
+                                    "✅ [M3U8_ALT] Alternative M3U8 processed successfully", "INFO", "AppCore")
                             else:
                                 enhanced_log(
                                     "⚠️ [M3U8_ALT] Alternative URL has no valid video segments",
@@ -2961,9 +2923,8 @@ def proxy_m3u(request=None, **kwargs):
                                 "AppCore")
                     else:
                         enhanced_log(
-                            "⚠️ [M3U8_ALT] Alternative URL HTTP %s" % alt_response.status_code,
-                            "WARNING",
-                            "AppCore")
+                            "⚠️ [M3U8_ALT] Alternative URL HTTP %s" %
+                            alt_response.status_code, "WARNING", "AppCore")
 
                 except Exception as alt_error:
                     enhanced_log(
@@ -2971,7 +2932,8 @@ def proxy_m3u(request=None, **kwargs):
                         "ERROR",
                         "AppCore")
 
-        # NECESSARY MODIFICATION: Completely remove #EXT-X-KEY when dlhd_masked=1
+        # NECESSARY MODIFICATION: Completely remove #EXT-X-KEY when
+        # dlhd_masked=1
         if dlhd_masked:
             m3u8_lines = [line for line in "\n".join(modified_m3u8).split('\n')
                           if not line.strip().startswith('#EXT-X-KEY')]
@@ -3002,9 +2964,8 @@ def proxy_m3u(request=None, **kwargs):
                 "AppCore")
         else:
             enhanced_log(
-                "✅ [M3U8_VALIDATION] Final M3U8 has %d valid segments" % segment_count,
-                "INFO",
-                "AppCore")
+                "✅ [M3U8_VALIDATION] Final M3U8 has %d valid segments" %
+                segment_count, "INFO", "AppCore")
 
         final_m3u8_bytes = final_m3u8.encode()
         if is_vavoo_request:
@@ -3014,9 +2975,8 @@ def proxy_m3u(request=None, **kwargs):
                 'in_progress': False,
             }
             enhanced_log(
-                "[VAVOO_M3U8_CACHE] Playlist saved for refresh (%d segments)" % segment_count,
-                "DEBUG",
-                "AppCore")
+                "[VAVOO_M3U8_CACHE] Playlist saved for refresh (%d segments)" %
+                segment_count, "DEBUG", "AppCore")
 
         return {
             'content': final_m3u8_bytes,
@@ -3062,11 +3022,10 @@ def proxy_resolve(request=None, **kwargs):
 
         headers_query = "&".join(
             ["h_%s=%s" % (quote(k), quote(v)) for k, v in result["headers"].items()])
-        m3u_content = (
-            "#EXTM3U\n"
-            "#EXTINF:-1,Resolved Channel\n"
-            "/proxy/m3u?url=%s&%s" % (quote(result['resolved_url']), headers_query)
-        )
+        m3u_content = ("#EXTM3U\n"
+                       "#EXTINF:-1,Resolved Channel\n"
+                       "/proxy/m3u?url=%s&%s" %
+                       (quote(result['resolved_url']), headers_query))
 
         return {
             'content': m3u_content,
@@ -3164,9 +3123,8 @@ def proxy_init_fmp4(request=None, **kwargs):
         )
 
         enhanced_log(
-            "✅ [INIT_FMP4] Synthetic init generated: %d bytes" % len(synthetic_init),
-            "INFO",
-            "proxy_fmp4")
+            "✅ [INIT_FMP4] Synthetic init generated: %d bytes" %
+            len(synthetic_init), "INFO", "proxy_fmp4")
 
         return {
             'content': synthetic_init,
@@ -3195,10 +3153,8 @@ def proxy_ts(request=None, **kwargs):
     is_fmp4 = kwargs.get('fmp4', '0') == '1'
     is_dlhd_masked = kwargs.get('dlhd_masked', '0') == '1'
 
-    enhanced_log(
-        "📋 [PROXY_TS] Extracted URL: %s" % (ts_url[-50:] if ts_url else 'EMPTY'),
-        "INFO",
-        "proxy_ts")
+    enhanced_log("📋 [PROXY_TS] Extracted URL: %s" %
+                 (ts_url[-50:] if ts_url else 'EMPTY'), "INFO", "proxy_ts")
     enhanced_log("📋 [PROXY_TS] Stream ID: %s" % stream_id, "INFO", "proxy_ts")
     enhanced_log(
         "📋 [PROXY_TS] fMP4: %s, DLHD masked: %s" % (is_fmp4, is_dlhd_masked),
@@ -3221,7 +3177,8 @@ def proxy_ts(request=None, **kwargs):
         "INFO",
         "proxy_ts")
 
-    # IMPROVED DLHD DETECTION: All segments from DLHD domains are potentially video
+    # IMPROVED DLHD DETECTION: All segments from DLHD domains are potentially
+    # video
     if not is_dlhd_masked:
         is_dlhd_masked = is_daddy_domain(
             ts_url) or 'playerfuncc.fun' in ts_url.lower()
@@ -3230,10 +3187,8 @@ def proxy_ts(request=None, **kwargs):
             "DEBUG",
             "proxy_ts")
 
-    enhanced_log(
-        "📦 [PROXY_TS] Segment request: %s" % (ts_url.split('/')[-1] if '/' in ts_url else ts_url[-30:]),
-        "INFO",
-        "proxy_ts")
+    enhanced_log("📦 [PROXY_TS] Segment request: %s" % (ts_url.split(
+        '/')[-1] if '/' in ts_url else ts_url[-30:]), "INFO", "proxy_ts")
     if stream_id:
         enhanced_log(
             "🆔 [PROXY_TS] Stream ID: %s" % stream_id,
@@ -3310,17 +3265,15 @@ def proxy_ts(request=None, **kwargs):
         ts_content = response.content
 
         enhanced_log(
-            "✅ [PROXY_TS] === SEGMENT DOWNLOADED: %d bytes ===" % len(ts_content),
-            "INFO",
-            "proxy_ts")
+            "✅ [PROXY_TS] === SEGMENT DOWNLOADED: %d bytes ===" %
+            len(ts_content), "INFO", "proxy_ts")
 
         # IMPROVED DLHD .html/.css HANDLING: These are masked TS segments
         non_ts_content_type = get_non_ts_content_type(ts_url, ts_content)
         if non_ts_content_type and not is_dlhd_masked:
             enhanced_log(
-                "[PROXY_TS] Non-TS resource served without decryption: %s" % non_ts_content_type,
-                "INFO",
-                "proxy_ts")
+                "[PROXY_TS] Non-TS resource served without decryption: %s" %
+                non_ts_content_type, "INFO", "proxy_ts")
             return {
                 'content': ts_content,
                 'status': 200,
@@ -3373,14 +3326,10 @@ def proxy_ts(request=None, **kwargs):
                                     decrypted):
                                 ts_content = decrypted
                                 enhanced_log(
-                                    "✅ [DLHD_MASKED] Masked segment decrypted successfully",
-                                    "INFO",
-                                    "proxy_ts")
+                                    "✅ [DLHD_MASKED] Masked segment decrypted successfully", "INFO", "proxy_ts")
                             else:
                                 enhanced_log(
-                                    "⚠️ [DLHD_MASKED] Decryption failed or unnecessary",
-                                    "WARNING",
-                                    "proxy_ts")
+                                    "⚠️ [DLHD_MASKED] Decryption failed or unnecessary", "WARNING", "proxy_ts")
                         else:
                             enhanced_log(
                                 "❌ [DLHD_MASKED] AES key not available",
@@ -3408,7 +3357,8 @@ def proxy_ts(request=None, **kwargs):
             if stream_id and stream_id in STREAM_KEY_INFO:
                 stream_info = STREAM_KEY_INFO[stream_id]
                 if stream_info.get('is_freeshot', False):
-                    # For Freeshot, keep native fMP4 (modern Enigma2 supports it)
+                    # For Freeshot, keep native fMP4 (modern Enigma2 supports
+                    # it)
                     enhanced_log(
                         "✅ [FMP4_NATIVE] Freeshot: keeping native fMP4 for Enigma2",
                         "INFO",
@@ -3451,9 +3401,8 @@ def proxy_ts(request=None, **kwargs):
                 }
             else:
                 enhanced_log(
-                    "⚠️ [PROXY_TS] Segment requires decryption (first byte: 0x%02x)" % ts_content[0],
-                    "WARNING",
-                    "proxy_ts")
+                    "⚠️ [PROXY_TS] Segment requires decryption (first byte: 0x%02x)" %
+                    ts_content[0], "WARNING", "proxy_ts")
         else:
             enhanced_log("❌ [PROXY_TS] Empty segment!", "ERROR", "proxy_ts")
 
@@ -3474,14 +3423,12 @@ def proxy_ts(request=None, **kwargs):
             if decrypted != ts_content:
                 ts_content = decrypted
                 enhanced_log(
-                    "✅ [PROXY_TS] DECRYPTION SUCCESSFUL: %d bytes" % len(ts_content),
-                    "INFO",
-                    "proxy_ts")
+                    "✅ [PROXY_TS] DECRYPTION SUCCESSFUL: %d bytes" %
+                    len(ts_content), "INFO", "proxy_ts")
                 if len(ts_content) > 0:
                     enhanced_log(
-                        "✅ [PROXY_TS] Sync byte after decryption: 0x%02x" % ts_content[0],
-                        "INFO",
-                        "proxy_ts")
+                        "✅ [PROXY_TS] Sync byte after decryption: 0x%02x" %
+                        ts_content[0], "INFO", "proxy_ts")
             else:
                 enhanced_log(
                     "⚠️ [PROXY_TS] Decryption did not modify content",
@@ -3521,10 +3468,8 @@ def proxy_ts(request=None, **kwargs):
         # Final content verification
         if len(ts_content) > 0:
             enhanced_log(
-                "✅ [PROXY_TS] === SEGMENT READY: %d bytes, sync: 0x%02x ===" % (
-                    len(ts_content), ts_content[0]),
-                "INFO",
-                "proxy_ts")
+                "✅ [PROXY_TS] === SEGMENT READY: %d bytes, sync: 0x%02x ===" %
+                (len(ts_content), ts_content[0]), "INFO", "proxy_ts")
         else:
             enhanced_log(
                 "❌ [PROXY_TS] === EMPTY SEGMENT - CRITICAL ERROR ===",
@@ -3533,9 +3478,8 @@ def proxy_ts(request=None, **kwargs):
 
         if is_dlhd_masked:
             enhanced_log(
-                "✅ [DLHD_MASKED] DLHD segment ready as TS: %d bytes" % len(ts_content),
-                "INFO",
-                "proxy_ts")
+                "✅ [DLHD_MASKED] DLHD segment ready as TS: %d bytes" %
+                len(ts_content), "INFO", "proxy_ts")
 
         return {
             'content': ts_content,
@@ -3576,9 +3520,8 @@ def proxy_ts(request=None, **kwargs):
                 0x00, 0x01, 0xF0, 0x00, 0x2A, 0xB1, 0x04, 0xB2
             ]) + b'\xFF' * (188 - 20)  # Padding
             enhanced_log(
-                "🎭 [DLHD_FALLBACK] DLHD TS fallback generated: %d bytes" % len(fallback_ts),
-                "WARNING",
-                "proxy_ts")
+                "🎭 [DLHD_FALLBACK] DLHD TS fallback generated: %d bytes" %
+                len(fallback_ts), "WARNING", "proxy_ts")
         else:
             enhanced_log(
                 "🆘 [PROXY_TS] Generating standard TS fallback",
@@ -3586,9 +3529,8 @@ def proxy_ts(request=None, **kwargs):
                 "proxy_ts")
             fallback_ts = b'\x47\x1F\xFF\x10' + b'\xFF' * 184
             enhanced_log(
-                "🆘 [PROXY_TS] TS fallback generated: %d bytes" % len(fallback_ts),
-                "WARNING",
-                "proxy_ts")
+                "🆘 [PROXY_TS] TS fallback generated: %d bytes" %
+                len(fallback_ts), "WARNING", "proxy_ts")
 
         return {
             'content': fallback_ts,
@@ -3636,10 +3578,8 @@ def cleanup_expired_segments():
 
     if expired_keys or old_init_count > 0:
         enhanced_log(
-            "🧹 [SEGMENT_CLEANUP] Removed %d expired segments (3s) and %d old init segments from cache" % (
-                len(expired_keys), old_init_count),
-            "DEBUG",
-            "AppCore")
+            "🧹 [SEGMENT_CLEANUP] Removed %d expired segments (3s) and %d old init segments from cache" %
+            (len(expired_keys), old_init_count), "DEBUG", "AppCore")
 
 
 def clear_stream_cache():
@@ -3739,7 +3679,8 @@ def is_valid_video_segment(url, strict_mode=False, is_dlhd=False):
         if url_lower.endswith(ext):
             return True
 
-    # If it has no extension but contains 'playlist' or 'm3u', accept (could be M3U8 without extension)
+    # If it has no extension but contains 'playlist' or 'm3u', accept (could
+    # be M3U8 without extension)
     if 'playlist' in url_lower or 'm3u' in url_lower:
         return True
 
@@ -3797,9 +3738,8 @@ def extract_key_info_from_m3u8(
                         "AppCore")
                 except Exception as sequence_error:
                     enhanced_log(
-                        "[SEQUENCE] Invalid media sequence: %s" % sequence_error,
-                        "DEBUG",
-                        "AppCore")
+                        "[SEQUENCE] Invalid media sequence: %s" %
+                        sequence_error, "DEBUG", "AppCore")
             if not line.startswith('#') and line.strip():
                 first_segment = line.strip()
                 break
@@ -3817,7 +3757,8 @@ def extract_key_info_from_m3u8(
                 key_uri = urljoin(base_url, relative_key_uri)
 
                 # NOTE: DaddyLive uses dynamic key URLs with 'number' parameter that changes
-                # The URL is saved as is - if it becomes obsolete, it will be handled in get_aes_key_for_stream
+                # The URL is saved as is - if it becomes obsolete, it will be
+                # handled in get_aes_key_for_stream
                 if is_daddy and 'giokko.ru' in key_uri:
                     enhanced_log(
                         "🔑 [KEY_INFO] Dynamic DaddyLive key URL: %s..." % key_uri[:80],
@@ -3836,54 +3777,46 @@ def extract_key_info_from_m3u8(
                         try:
                             iv_bytes = bytes.fromhex(iv_value)
                             enhanced_log(
-                                "🔢 [IV] Converted from hex: %s" % iv_bytes.hex(),
-                                "DEBUG",
-                                "AppCore")
+                                "🔢 [IV] Converted from hex: %s" %
+                                iv_bytes.hex(), "DEBUG", "AppCore")
                         except Exception:
                             iv_bytes = iv_value.encode('latin-1')
                             enhanced_log(
-                                "⚠️ [IV] Hex conversion failed, using as string: %s" % iv_bytes.hex(),
-                                "WARNING",
-                                "AppCore")
+                                "⚠️ [IV] Hex conversion failed, using as string: %s" %
+                                iv_bytes.hex(), "WARNING", "AppCore")
                     else:
                         iv_bytes = iv_value.encode('latin-1')
                         enhanced_log(
-                            "🔢 [IV] Interpreted as ASCII string: %s" % iv_bytes.hex(),
-                            "DEBUG",
-                            "AppCore")
+                            "🔢 [IV] Interpreted as ASCII string: %s" %
+                            iv_bytes.hex(), "DEBUG", "AppCore")
                     if len(iv_bytes) != 16:
                         if len(iv_bytes) < 16:
                             iv_bytes = iv_bytes + bytes(16 - len(iv_bytes))
                             enhanced_log(
-                                "⚠️ [IV] IV too short, padded to: %s" % iv_bytes.hex(),
-                                "WARNING",
-                                "AppCore")
+                                "⚠️ [IV] IV too short, padded to: %s" %
+                                iv_bytes.hex(), "WARNING", "AppCore")
                         else:
                             iv_bytes = iv_bytes[:16]
                             enhanced_log(
-                                "⚠️ [IV] IV too long, truncated to: %s" % iv_bytes.hex(),
-                                "WARNING",
-                                "AppCore")
+                                "⚠️ [IV] IV too long, truncated to: %s" %
+                                iv_bytes.hex(), "WARNING", "AppCore")
                 if not iv_bytes:
                     iv_bytes = hashlib.md5(stream_id.encode()).digest()[:16]
                     enhanced_log(
-                        "⚠️ [KEY_EXTRACTION] Invalid IV, using generated IV: %s" % iv_bytes.hex(),
-                        "WARNING",
-                        "AppCore")
+                        "⚠️ [KEY_EXTRACTION] Invalid IV, using generated IV: %s" %
+                        iv_bytes.hex(), "WARNING", "AppCore")
                 if not isinstance(iv_bytes, bytes):
                     iv_bytes = str(iv_bytes).encode('latin-1')
                 if len(iv_bytes) < 16:
                     iv_bytes = iv_bytes + bytes(16 - len(iv_bytes))
                     enhanced_log(
-                        "⚠️ [KEY_EXTRACTION] IV too short, zero-padded: %s" % iv_bytes.hex(),
-                        "WARNING",
-                        "AppCore")
+                        "⚠️ [KEY_EXTRACTION] IV too short, zero-padded: %s" %
+                        iv_bytes.hex(), "WARNING", "AppCore")
                 elif len(iv_bytes) > 16:
                     iv_bytes = iv_bytes[:16]
                     enhanced_log(
-                        "⚠️ [KEY_EXTRACTION] IV too long, truncated: %s" % iv_bytes.hex(),
-                        "WARNING",
-                        "AppCore")
+                        "⚠️ [KEY_EXTRACTION] IV too long, truncated: %s" %
+                        iv_bytes.hex(), "WARNING", "AppCore")
                 iv_hex = iv_bytes.hex()
                 # PATCH: create entry BEFORE any assignment
                 # Also save headers for use in key download
@@ -3924,9 +3857,8 @@ def extract_key_info_from_m3u8(
                             "DEBUG",
                             "AppCore")
                         enhanced_log(
-                            "🔗 [FASE_2] Absolute segment URL: %s" % full_segment_url,
-                            "DEBUG",
-                            "AppCore")
+                            "🔗 [FASE_2] Absolute segment URL: %s" %
+                            full_segment_url, "DEBUG", "AppCore")
                 else:
                     enhanced_log(
                         "🔑 Key info saved for stream %s" % stream_id,
@@ -4026,10 +3958,8 @@ def get_aes_key_for_stream(stream_id, headers, segment_url=None):
         if current_time - last_heartbeat > 30:
             heartbeat_url = stream_headers.get('Heartbeat-Url')
             if heartbeat_url:
-                enhanced_log(
-                    "💓 [HEARTBEAT] Sending heartbeat: %s" % heartbeat_url[-30:],
-                    "DEBUG",
-                    "AppCore")
+                enhanced_log("💓 [HEARTBEAT] Sending heartbeat: %s" %
+                             heartbeat_url[-30:], "DEBUG", "AppCore")
                 try:
                     hb_headers = {
                         'Authorization': stream_headers.get('Authorization', ''),
@@ -4056,14 +3986,12 @@ def get_aes_key_for_stream(stream_id, headers, segment_url=None):
                     if response.status_code == 200:
                         key_info['last_heartbeat'] = current_time
                         enhanced_log(
-                            "💓 [HEARTBEAT] Heartbeat successful for stream %s" % stream_id,
-                            "DEBUG",
-                            "AppCore")
+                            "💓 [HEARTBEAT] Heartbeat successful for stream %s" %
+                            stream_id, "DEBUG", "AppCore")
                     else:
                         enhanced_log(
-                            "⚠️ [HEARTBEAT] Heartbeat failed: %s" % response.status_code,
-                            "WARNING",
-                            "AppCore")
+                            "⚠️ [HEARTBEAT] Heartbeat failed: %s" %
+                            response.status_code, "WARNING", "AppCore")
                 except Exception as e:
                     enhanced_log(
                         "⚠️ [HEARTBEAT] Heartbeat error: %s" % e,
@@ -4165,11 +4093,8 @@ def get_aes_key_for_stream(stream_id, headers, segment_url=None):
             return aes_key
         else:
             enhanced_log(
-                "❌ [NEW_KEY] Invalid AES key size: %d bytes (expected 16)" % len(
-                    aes_key),
-                "ERROR",
-                "AppCore"
-            )
+                "❌ [NEW_KEY] Invalid AES key size: %d bytes (expected 16)" %
+                len(aes_key), "ERROR", "AppCore")
 
         return None
 
@@ -4316,7 +4241,8 @@ def decrypt_ts_segment(ts_content, aes_key, stream_id):
             if len(decrypted) > 0 and decrypted[0] == 0x47:
                 return decrypted
 
-            # If sync byte is incorrect, try decrypting without removing padding
+            # If sync byte is incorrect, try decrypting without removing
+            # padding
             if AES_MODULE == "cryptography":
                 cipher = Cipher(
                     algorithms.AES(aes_key),
@@ -4784,8 +4710,7 @@ class ConfigManager:
             '/usr/lib/enigma2/python/Plugins/Extensions/StreamProxy/SPconfig.txt',
             '/usr/lib/enigma2/python/Plugins/Extensions/StreamProxy/streamproxy_config.json',
             'SPconfig.txt',
-            self.config_file
-        ]
+            self.config_file]
 
         loaded_path = None
 

@@ -6,11 +6,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def detect(source):
     """Rileva se il codice JavaScript è packed"""
     if "eval(function(p,a,c,k,e,d)" in source:
         return True
     return False
+
 
 def unpack(source):
     """Unpacks P.A.C.K.E.R. packed js code."""
@@ -33,6 +35,7 @@ def unpack(source):
     source = re.sub(r"\b\w+\b", lookup, payload)
     return _replacestrings(source)
 
+
 def _filterargs(source):
     """Juice from a source file the four args needed by decoder."""
     juicers = [
@@ -52,7 +55,9 @@ def _filterargs(source):
             except ValueError:
                 raise UnpackingError("Corrupted p.a.c.k.e.r. data.")
 
-    raise UnpackingError("Could not make sense of p.a.c.k.e.r data (unexpected code structure)")
+    raise UnpackingError(
+        "Could not make sense of p.a.c.k.e.r data (unexpected code structure)")
+
 
 def _replacestrings(source):
     """Strip string lookup table (list) and replace values in source."""
@@ -67,6 +72,7 @@ def _replacestrings(source):
             source = source.replace(variable % index, '"%s"' % value)
         return source[startpoint:]
     return source
+
 
 class Unbaser(object):
     """Functor for a given base. Will efficiently convert strings to natural numbers."""
@@ -91,8 +97,8 @@ class Unbaser(object):
         else:
             try:
                 self.dictionary = dict(
-                    (cipher, index) for index, cipher in enumerate(self.ALPHABET[base])
-                )
+                    (cipher, index) for index, cipher in enumerate(
+                        self.ALPHABET[base]))
             except KeyError:
                 raise TypeError("Unsupported base encoding.")
 
@@ -107,6 +113,7 @@ class Unbaser(object):
         for index, cipher in enumerate(string[::-1]):
             ret += (self.base ** index) * self.dictionary[cipher]
         return ret
+
 
 class UnpackingError(Exception):
     """Badly packed source or general error."""

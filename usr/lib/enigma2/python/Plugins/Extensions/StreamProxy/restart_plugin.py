@@ -20,7 +20,10 @@ try:
 
     # Inizializza il logger
     logger = StreamProxyLogger.getInstance()
-    enhanced_log("============ INIZIO RIAVVIO PLUGIN ============", "INFO", "RESTART")
+    enhanced_log(
+        "============ INIZIO RIAVVIO PLUGIN ============",
+        "INFO",
+        "RESTART")
 
     # Ferma il proxy server se è in esecuzione
     enhanced_log("Arresto del server proxy in corso...", "INFO", "RESTART")
@@ -32,12 +35,19 @@ try:
     if proxy_manager.start_proxy():
         enhanced_log("✅ Server proxy avviato con successo", "INFO", "RESTART")
     else:
-        enhanced_log("❌ Errore nell'avvio del server proxy", "ERROR", "RESTART")
+        enhanced_log(
+            "❌ Errore nell'avvio del server proxy",
+            "ERROR",
+            "RESTART")
 
     # Verifica che il server sia effettivamente in ascolto
     server = proxy_manager.get_proxy_server()
     if server and server.running:
-        enhanced_log(f"Server proxy in ascolto sulla porta {server.listening_port}", "INFO", "RESTART")
+        enhanced_log(
+            f"Server proxy in ascolto sulla porta {
+                server.listening_port}",
+            "INFO",
+            "RESTART")
     else:
         enhanced_log("Server proxy non in ascolto", "WARNING", "RESTART")
 
@@ -51,5 +61,5 @@ except Exception as e:
     try:
         enhanced_log(error_msg, "ERROR", "RESTART")
         enhanced_log(traceback.format_exc(), "ERROR", "RESTART")
-    except:
+    except BaseException:
         pass

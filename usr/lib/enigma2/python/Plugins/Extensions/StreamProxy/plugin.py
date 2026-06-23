@@ -74,6 +74,8 @@ def save_config(config):
     except Exception as e:
         print(f"[StreamProxy] Errore salvataggio config: {e}")
         return False
+
+
 def autostart(reason, **kwargs):
     """Main entry point del plugin"""
     if reason == 0:  # Avvio
@@ -108,10 +110,16 @@ def sessionstart(reason, **kwargs):
 
                 enhanced_log("5. Importo ServiceMonitor...", "DEBUG", "PLUGIN")
                 from .ServiceMonitor import StreamProxyServiceMonitor
-                enhanced_log("6. ServiceMonitor importato OK", "DEBUG", "PLUGIN")
+                enhanced_log(
+                    "6. ServiceMonitor importato OK",
+                    "DEBUG",
+                    "PLUGIN")
 
                 service_monitor = StreamProxyServiceMonitor(session)
-                enhanced_log("7. ✅ ServiceMonitor istanziato", "INFO", "PLUGIN")
+                enhanced_log(
+                    "7. ✅ ServiceMonitor istanziato",
+                    "INFO",
+                    "PLUGIN")
                 enhanced_log("8. ✅ TUTTO INIZIALIZZATO", "INFO", "PLUGIN")
 
             except ImportError as e:
@@ -134,7 +142,8 @@ class StreamProxyMain(Screen):
         Screen.__init__(self, session)
         self.session = session
 
-        self["status"] = Label("StreamProxy - Plugin attivo\n\nPremi VERDE per Setup\nPremi ROSSO per chiudere")
+        self["status"] = Label(
+            "StreamProxy - Plugin attivo\n\nPremi VERDE per Setup\nPremi ROSSO per chiudere")
         self["key_red"] = Label("Chiudi")
         self["key_green"] = Label("Setup")
 
@@ -144,7 +153,7 @@ class StreamProxyMain(Screen):
                                         "ok": self.openSetup,
                                         "red": self.close,
                                         "green": self.openSetup
-                                    }, -2)
+        }, -2)
 
     def openSetup(self):
         print("[StreamProxy] Apertura setup...")
@@ -182,7 +191,7 @@ class StreamProxySetup(Screen):
                                         "red": self.close,
                                         "green": self.saveAndClose,
                                         "ok": self.toggleSetting
-                                    }, -2)
+        }, -2)
 
     def saveAndClose(self):
         """Salva le modifiche e chiude"""
@@ -199,13 +208,18 @@ class StreamProxySetup(Screen):
             DEBUG_ENABLED = self.debug_mode
 
             from Screens.MessageBox import MessageBox
-            self.session.open(MessageBox, "Configurazione salvata!", MessageBox.TYPE_INFO, timeout=2)
+            self.session.open(
+                MessageBox,
+                "Configurazione salvata!",
+                MessageBox.TYPE_INFO,
+                timeout=2)
 
         self.close()
 
     def updateMenu(self):
         menu_text = "CONFIGURAZIONE STREAMPROXY\n\n"
-        menu_text += f"1. Proxy abilitato: {'ON' if self.proxy_enabled else 'OFF'}\n"
+        menu_text += f"1. Proxy abilitato: {
+            'ON' if self.proxy_enabled else 'OFF'}\n"
         menu_text += f"2. Debug mode: {'ON' if self.debug_mode else 'OFF'}\n\n"
         menu_text += "Premi OK per modificare\nPremi VERDE per salvare"
 
@@ -214,12 +228,14 @@ class StreamProxySetup(Screen):
     def toggleSetting(self):
         from Screens.ChoiceBox import ChoiceBox
         choices = [
-            (f"Proxy abilitato: {'ON' if self.proxy_enabled else 'OFF'}", "proxy"),
-            (f"Debug mode: {'ON' if self.debug_mode else 'OFF'}", "debug")
-        ]
-        self.session.openWithCallback(self.choiceCallback, ChoiceBox,
-                                      title="Seleziona impostazione da modificare:",
-                                      list=choices)
+            (f"Proxy abilitato: {
+                'ON' if self.proxy_enabled else 'OFF'}", "proxy"), (f"Debug mode: {
+                    'ON' if self.debug_mode else 'OFF'}", "debug")]
+        self.session.openWithCallback(
+            self.choiceCallback,
+            ChoiceBox,
+            title="Seleziona impostazione da modificare:",
+            list=choices)
 
     def choiceCallback(self, choice):
         if choice:
@@ -230,7 +246,6 @@ class StreamProxySetup(Screen):
 
             # Aggiorna immediatamente il menu
             self.updateMenu()
-
 
 
 def main(session, **kwargs):

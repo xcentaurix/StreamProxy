@@ -20,8 +20,7 @@ class Locale:
             'enable_filter': 'Abilita filtro canali',
             'port': 'Porta',
             'settings_saved': 'Impostazioni salvate',
-            'restart_required': 'Riavvio richiesto per applicare le modifiche'
-        },
+            'restart_required': 'Riavvio richiesto per applicare le modifiche'},
         'en': {
             'plugin_name': 'Stream Proxy',
             'plugin_description': 'Proxy to improve streaming playback',
@@ -38,13 +37,11 @@ class Locale:
             'enable_filter': 'Enable channel filter',
             'port': 'Port',
             'settings_saved': 'Settings saved',
-            'restart_required': 'Restart required to apply changes'
-        }
-    }
-    
+            'restart_required': 'Restart required to apply changes'}}
+
     # Lingua corrente (default: italiano)
     _current_language = 'it'
-    
+
     @classmethod
     def set_language(cls, language_code):
         """Imposta la lingua corrente"""
@@ -52,7 +49,7 @@ class Locale:
             cls._current_language = language_code
             return True
         return False
-    
+
     @classmethod
     def _(cls, text):
         """Traduce un testo nella lingua corrente"""

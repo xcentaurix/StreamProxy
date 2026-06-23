@@ -38,8 +38,7 @@ class VixCloudExtractor:
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/120.0.0.0 Safari/537.36"
-            ),
+                "Chrome/120.0.0.0 Safari/537.36"),
         }
         self.mediaflow_endpoint = "hls_manifest_proxy"
         self.is_vixsrc = True
@@ -53,21 +52,29 @@ class VixCloudExtractor:
                 status_forcelist=[429, 500, 502, 503, 504],
                 allowed_methods=["HEAD", "GET"],
             )
-            adapter = HTTPAdapter(max_retries=retry, pool_connections=4, pool_maxsize=8)
+            adapter = HTTPAdapter(
+                max_retries=retry,
+                pool_connections=4,
+                pool_maxsize=8)
             self.session.mount("http://", adapter)
             self.session.mount("https://", adapter)
 
     def extract(self, url):
         """Estrae la master playlist HLS da window.masterPlaylist."""
-        enhanced_log("[VIX] START extract kotlin-style: {}...".format(url[:80]), "INFO", "VIX")
+        enhanced_log(
+            "[VIX] START extract kotlin-style: {}...".format(url[:80]), "INFO", "VIX")
 
         try:
             clean_url = self._normalise_url(url)
             parsed_url = urlparse(clean_url)
 
-            # Compatibilita': se l'URL e' gia' una playlist diretta, non va risolto.
+            # Compatibilita': se l'URL e' gia' una playlist diretta, non va
+            # risolto.
             if "/playlist/" in parsed_url.path:
-                enhanced_log("[VIX] URL gia' risolto - passthrough diretto", "INFO", "VIX")
+                enhanced_log(
+                    "[VIX] URL gia' risolto - passthrough diretto",
+                    "INFO",
+                    "VIX")
                 return {
                     "resolved_url": clean_url,
                     "destination_url": clean_url,
@@ -81,19 +88,28 @@ class VixCloudExtractor:
                 return None
 
             html = response.text
-            enhanced_log("[VIX] Contenuto pagina: {} caratteri".format(len(html)), "DEBUG", "VIX")
+            enhanced_log(
+                "[VIX] Contenuto pagina: {} caratteri".format(
+                    len(html)), "DEBUG", "VIX")
 
             script = self._find_playlist_script(html)
             if not script:
-                enhanced_log("[VIX] Nessuno script playlist trovato", "WARNING", "VIX")
+                enhanced_log(
+                    "[VIX] Nessuno script playlist trovato",
+                    "WARNING",
+                    "VIX")
                 return None
 
             final_url = self._extract_playlist_from_embed(script)
             if not final_url:
-                enhanced_log("[VIX] Parametri playlist mancanti o incompleti", "WARNING", "VIX")
+                enhanced_log(
+                    "[VIX] Parametri playlist mancanti o incompleti",
+                    "WARNING",
+                    "VIX")
                 return None
 
-            enhanced_log("[VIX] SUCCESS kotlin exact: {}...".format(final_url[:120]), "INFO", "VIX")
+            enhanced_log("[VIX] SUCCESS kotlin exact: {}...".format(
+                final_url[:120]), "INFO", "VIX")
             return {
                 "resolved_url": final_url,
                 "destination_url": final_url,
@@ -103,7 +119,10 @@ class VixCloudExtractor:
             }
 
         except Exception as e:
-            enhanced_log("[VIX] VixCloud extraction error: {}".format(e), "ERROR", "VIX")
+            enhanced_log(
+                "[VIX] VixCloud extraction error: {}".format(e),
+                "ERROR",
+                "VIX")
             return None
 
     def _normalise_url(self, url):
@@ -122,7 +141,13 @@ class VixCloudExtractor:
             return None
         return "{}://{}".format(parsed.scheme, parsed.netloc)
 
-    def _request(self, url, headers=None, timeout=8, retries=3, initial_delay=2):
+    def _request(
+            self,
+            url,
+            headers=None,
+            timeout=8,
+            retries=3,
+            initial_delay=2):
         final_headers = headers or self._fresh_headers()
         last_error = None
 
@@ -143,26 +168,23 @@ class VixCloudExtractor:
                     return response
 
                 last_error = "HTTP {}".format(response.status_code)
-                enhanced_log(
-                    "[VIX] Errore HTTP {} su {}".format(response.status_code, url[:80]),
-                    "WARNING",
-                    "VIX",
-                )
+                enhanced_log("[VIX] Errore HTTP {} su {}".format(
+                    response.status_code, url[:80]), "WARNING", "VIX", )
                 if response.status_code == 404:
                     return None
 
             except Exception as e:
                 last_error = e
-                enhanced_log(
-                    "[VIX] Errore connessione tentativo {} su {}: {}".format(attempt + 1, url[:80], e),
-                    "WARNING",
-                    "VIX",
-                )
+                enhanced_log("[VIX] Errore connessione tentativo {} su {}: {}".format(
+                    attempt + 1, url[:80], e), "WARNING", "VIX", )
 
             if attempt < retries - 1:
                 time.sleep(initial_delay * (2 ** attempt))
 
-        enhanced_log("[VIX] Richiesta fallita: {}".format(last_error), "ERROR", "VIX")
+        enhanced_log(
+            "[VIX] Richiesta fallita: {}".format(last_error),
+            "ERROR",
+            "VIX")
         return None
 
     def _raise_if_embed_expired(self, url):
@@ -187,25 +209,38 @@ class VixCloudExtractor:
         if "/embed/" in parsed_url.path:
             self._raise_if_embed_expired(url)
             site_url = self._normalise_base_site(url)
-            return self._request(url, headers=self._fresh_headers(Referer=(site_url or "") + "/"))
+            return self._request(
+                url, headers=self._fresh_headers(
+                    Referer=(
+                        site_url or "") + "/"))
 
         if "iframe" in url:
             site_url = url.split("/iframe")[0]
             version = self._version(site_url)
-            inertia_headers = self._fresh_headers(**{"x-inertia": "true", "x-inertia-version": version})
+            inertia_headers = self._fresh_headers(
+                **{"x-inertia": "true", "x-inertia-version": version})
             response = self._request(url, headers=inertia_headers)
             if not response:
                 return None
             iframe_src = self._find_iframe_src(response.text)
             if not iframe_src:
-                enhanced_log("[VIX] Nessun iframe trovato nella risposta", "WARNING", "VIX")
+                enhanced_log(
+                    "[VIX] Nessun iframe trovato nella risposta",
+                    "WARNING",
+                    "VIX")
                 return None
-            return self._request(urljoin(site_url + "/", iframe_src), headers=inertia_headers)
+            return self._request(
+                urljoin(
+                    site_url + "/",
+                    iframe_src),
+                headers=inertia_headers)
 
         if "/movie/" in parsed_url.path or "/tv/" in parsed_url.path:
             embed_url = self._resolve_embed_url_from_api(url, parsed_url)
             if embed_url:
-                return self._request(embed_url, headers=self._fresh_headers(Referer=url))
+                return self._request(
+                    embed_url, headers=self._fresh_headers(
+                        Referer=url))
             return self._request(url)
 
         return self._request(url)
@@ -215,27 +250,30 @@ class VixCloudExtractor:
         if not site_url:
             return None
 
-        path_parts = [part for part in parsed.path.strip("/").split("/") if part]
+        path_parts = [
+            part for part in parsed.path.strip("/").split("/") if part]
         api_url = None
         if len(path_parts) >= 2 and path_parts[0] == "movie":
             api_url = "{}/api/movie/{}".format(site_url, path_parts[1])
         elif len(path_parts) >= 4 and path_parts[0] == "tv":
-            api_url = "{}/api/tv/{}/{}/{}".format(site_url, path_parts[1], path_parts[2], path_parts[3])
+            api_url = "{}/api/tv/{}/{}/{}".format(
+                site_url, path_parts[1], path_parts[2], path_parts[3])
 
         if not api_url:
             return None
 
-        response = self._request(
-            api_url,
-            headers=self._fresh_headers(Accept="application/json, text/plain, */*", Referer=url),
-        )
+        response = self._request(api_url, headers=self._fresh_headers(
+            Accept="application/json, text/plain, */*", Referer=url), )
         if not response:
             return None
 
         try:
             payload = json.loads(response.text)
         except ValueError as e:
-            enhanced_log("[VIX] Risposta API non JSON: {}".format(e), "WARNING", "VIX")
+            enhanced_log(
+                "[VIX] Risposta API non JSON: {}".format(e),
+                "WARNING",
+                "VIX")
             return None
 
         embed_path = payload.get("src")
@@ -247,7 +285,9 @@ class VixCloudExtractor:
     def _version(self, site_url):
         response = self._request(
             "{}/request-a-title".format(site_url),
-            headers=self._fresh_headers(Referer=site_url + "/", Origin=site_url),
+            headers=self._fresh_headers(
+                Referer=site_url + "/",
+                Origin=site_url),
         )
         if not response:
             raise ValueError("Obsolete URL")
@@ -263,19 +303,31 @@ class VixCloudExtractor:
             raise ValueError("Version parsing failure: {}".format(e))
 
     def _find_app_data_page(self, html):
-        match = re.search(r'<div[^>]*id="app"[^>]*data-page="([^"]*)"[^>]*>', html, re.IGNORECASE)
+        match = re.search(
+            r'<div[^>]*id="app"[^>]*data-page="([^"]*)"[^>]*>',
+            html,
+            re.IGNORECASE)
         return match.group(1) if match else None
 
     def _find_iframe_src(self, html):
-        match = re.search(r'<iframe[^>]*src="([^"]*)"[^>]*>', html, re.IGNORECASE)
+        match = re.search(
+            r'<iframe[^>]*src="([^"]*)"[^>]*>',
+            html,
+            re.IGNORECASE)
         return match.group(1) if match else None
 
     def _find_playlist_script(self, html):
-        scripts = re.findall(r"<script\b[^>]*>(.*?)</script>", html, re.IGNORECASE | re.DOTALL)
+        scripts = re.findall(
+            r"<script\b[^>]*>(.*?)</script>",
+            html,
+            re.IGNORECASE | re.DOTALL)
         for script in scripts:
             if "window.masterPlaylist" in script or "'token':" in script or '"token":' in script:
                 return script
-        match = re.search(r"<body[^>]*>.*?<script[^>]*>(.*?)</script>", html, re.DOTALL | re.IGNORECASE)
+        match = re.search(
+            r"<body[^>]*>.*?<script[^>]*>(.*?)</script>",
+            html,
+            re.DOTALL | re.IGNORECASE)
         if match:
             return match.group(1)
         return None
@@ -291,7 +343,10 @@ class VixCloudExtractor:
             if final_url:
                 return final_url
 
-        enhanced_log("[VIX] Uso fallback legacy token/expires/url", "DEBUG", "VIX")
+        enhanced_log(
+            "[VIX] Uso fallback legacy token/expires/url",
+            "DEBUG",
+            "VIX")
         return self._build_from_legacy_script(script)
 
     def _build_from_master_playlist_regex(self, script):
@@ -307,9 +362,15 @@ class VixCloudExtractor:
         params_block = master_playlist_match.group("params")
         playlist_url = master_playlist_match.group("url").replace("\\/", "/")
 
-        token_match = re.search(r"['\"]token['\"]\s*:\s*['\"]([^'\"]+)['\"]", params_block)
-        expires_match = re.search(r"['\"]expires['\"]\s*:\s*['\"](\d+)['\"]", params_block)
-        asn_match = re.search(r"['\"]asn['\"]\s*:\s*['\"]([^'\"]*)['\"]", params_block)
+        token_match = re.search(
+            r"['\"]token['\"]\s*:\s*['\"]([^'\"]+)['\"]",
+            params_block)
+        expires_match = re.search(
+            r"['\"]expires['\"]\s*:\s*['\"](\d+)['\"]",
+            params_block)
+        asn_match = re.search(
+            r"['\"]asn['\"]\s*:\s*['\"]([^'\"]*)['\"]",
+            params_block)
 
         if not token_match or not expires_match:
             return None
@@ -318,7 +379,8 @@ class VixCloudExtractor:
             playlist_url,
             token=token_match.group(1),
             expires=expires_match.group(1),
-            can_play_fhd=("window.canPlayFHD = true" in script or "canPlayFHD" in script),
+            can_play_fhd=(
+                "window.canPlayFHD = true" in script or "canPlayFHD" in script),
             asn=asn_match.group(1) if asn_match and asn_match.group(1) else None,
         )
         return final_url
@@ -352,15 +414,13 @@ class VixCloudExtractor:
         try:
             return json.loads(aggregated)
         except Exception as e:
-            enhanced_log(
-                "[VIX] JSON parse fail: {}; payload={}".format(e, aggregated[:160]),
-                "WARNING",
-                "VIX",
-            )
+            enhanced_log("[VIX] JSON parse fail: {}; payload={}".format(
+                e, aggregated[:160]), "WARNING", "VIX", )
             return None
 
     def _build_from_master_playlist_object(self, parsed, script=None):
-        master_playlist = parsed.get("masterPlaylist") if isinstance(parsed, dict) else None
+        master_playlist = parsed.get(
+            "masterPlaylist") if isinstance(parsed, dict) else None
         if not isinstance(master_playlist, dict):
             return None
 
@@ -379,36 +439,49 @@ class VixCloudExtractor:
             base_url,
             token=token,
             expires=expires,
-            can_play_fhd=parsed.get("canPlayFHD") is True or (script and "canPlayFHD" in script),
+            can_play_fhd=parsed.get("canPlayFHD") is True or (
+                script and "canPlayFHD" in script),
             asn=asn,
         )
 
         return final_url
 
     def _build_from_legacy_script(self, script):
-        token_match = re.search(r"['\"]token['\"]\s*:\s*['\"]([^'\"]+)['\"]", script)
-        expires_match = re.search(r"['\"]expires['\"]\s*:\s*['\"](\d+)['\"]", script)
+        token_match = re.search(
+            r"['\"]token['\"]\s*:\s*['\"]([^'\"]+)['\"]", script)
+        expires_match = re.search(
+            r"['\"]expires['\"]\s*:\s*['\"](\d+)['\"]", script)
         server_url_match = re.search(r"url\s*:\s*['\"]([^'\"]+)['\"]", script)
 
         if not all([token_match, expires_match, server_url_match]):
-            token_match = token_match or re.search(r"token['\"]\s*:\s*['\"]([^'\"]+)['\"]", script)
-            expires_match = expires_match or re.search(r"expires['\"]\s*:\s*['\"](\d+)['\"]", script)
+            token_match = token_match or re.search(
+                r"token['\"]\s*:\s*['\"]([^'\"]+)['\"]", script)
+            expires_match = expires_match or re.search(
+                r"expires['\"]\s*:\s*['\"](\d+)['\"]", script)
 
         if not all([token_match, expires_match, server_url_match]):
             return None
 
-        asn_match = re.search(r"['\"]asn['\"]\s*:\s*['\"]([^'\"]*)['\"]", script)
+        asn_match = re.search(
+            r"['\"]asn['\"]\s*:\s*['\"]([^'\"]*)['\"]", script)
         asn = asn_match.group(1) if asn_match and asn_match.group(1) else None
         final_url = self._append_playlist_query(
             server_url_match.group(1),
             token=token_match.group(1),
             expires=expires_match.group(1),
-            can_play_fhd=("window.canPlayFHD = true" in script or "canPlayFHD" in script),
+            can_play_fhd=(
+                "window.canPlayFHD = true" in script or "canPlayFHD" in script),
             asn=asn,
         )
         return final_url
 
-    def _append_playlist_query(self, base_url, token, expires, can_play_fhd=False, asn=None):
+    def _append_playlist_query(
+            self,
+            base_url,
+            token,
+            expires,
+            can_play_fhd=False,
+            asn=None):
         base_url = (base_url or "").replace("\\/", "/").replace("?b:1", "?b=1")
         parsed_url = urlparse(base_url)
         query_params = parse_qsl(parsed_url.query, keep_blank_values=True)

@@ -5,4 +5,4 @@ try:
     CRYPTO_AVAILABLE = True
 except ImportError:
     CRYPTO_AVAILABLE = False
-    #enhanced_log("⚠️ Crypto non disponibile - decrittazione AES disabilitata", "WARNING", "AppCore")
+    # enhanced_log("⚠️ Crypto non disponibile - decrittazione AES disabilitata", "WARNING", "AppCore")

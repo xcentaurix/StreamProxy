@@ -9,6 +9,7 @@ from enigma import ePoint
 from .locale import Locale
 from . import proxy_manager
 
+
 class StreamProxySetup(Screen, ConfigListScreen):
     skin = """
     <screen position="center,center" size="560,400">
@@ -39,15 +40,17 @@ class StreamProxySetup(Screen, ConfigListScreen):
             getConfigListEntry(Locale._("User-Agent personalizzato"), config.plugins.streamproxy.use_custom_useragent),
         ])
 
-        # Aggiungi il campo custom_useragent solo se use_custom_useragent è abilitato
+        # Aggiungi il campo custom_useragent solo se use_custom_useragent è
+        # abilitato
         if config.plugins.streamproxy.use_custom_useragent.value:
             self["config"].list.append(
-                getConfigListEntry(Locale._("User-Agent"), config.plugins.streamproxy.custom_useragent)
-            )
+                getConfigListEntry(
+                    Locale._("User-Agent"),
+                    config.plugins.streamproxy.custom_useragent))
 
         # Configura le azioni dei pulsanti
         self["actions"] = ActionMap(["SetupActions", "ColorActions"],
-        {
+                                    {
             "green": self.save,
             "red": self.cancel,
             "save": self.save,
@@ -56,7 +59,8 @@ class StreamProxySetup(Screen, ConfigListScreen):
         }, -2)
 
         self.onLayoutFinish.append(self.layoutFinished)
-        config.plugins.streamproxy.use_custom_useragent.addNotifier(self.useragentChanged)
+        config.plugins.streamproxy.use_custom_useragent.addNotifier(
+            self.useragentChanged)
 
     def layoutFinished(self):
         self.setTitle(Locale._("StreamProxy Setup"))
@@ -74,8 +78,9 @@ class StreamProxySetup(Screen, ConfigListScreen):
         ]
         if configElement.value:
             self["config"].list.append(
-                getConfigListEntry(Locale._("User-Agent"), config.plugins.streamproxy.custom_useragent)
-            )
+                getConfigListEntry(
+                    Locale._("User-Agent"),
+                    config.plugins.streamproxy.custom_useragent))
         self["config"].l.setList(self["config"].list)
 
     def save(self):
@@ -93,11 +98,11 @@ class StreamProxySetup(Screen, ConfigListScreen):
     def cancel(self):
         for x in self["config"].list:
             x[1].cancel()
-        self.close(self.changed)  # Passa il flag delle modifiche anche in caso di annullamento
+        # Passa il flag delle modifiche anche in caso di annullamento
+        self.close(self.changed)
 
     def keySave(self):
         self.save()
 
     def keyCancel(self):
         self.cancel()
-

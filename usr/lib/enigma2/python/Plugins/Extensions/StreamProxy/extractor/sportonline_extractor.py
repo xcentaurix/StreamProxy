@@ -1,4 +1,5 @@
-# sportonline_extractor.py - Sportsonline/Sportzonline extractor per Enigma2 Python 3
+# sportonline_extractor.py - Sportsonline/Sportzonline extractor per
+# Enigma2 Python 3
 import re
 import time
 from urllib.parse import urljoin, urlparse
@@ -61,7 +62,10 @@ def extract_unpack(packed_js):
         match = re.search(r"}\((.*)\)\)", packed_js)
         if not match:
             raise ValueError("Cannot find packed data")
-        p, a, c, k, e, d = eval("(%s)" % match.group(1), {"__builtins__": {}}, {})
+        p, a, c, k, e, d = eval(
+            "(%s)" %
+            match.group(1), {
+                "__builtins__": {}}, {})
         return unpack(p, a, c, k, e, d)
     except Exception as exc:
         raise SportOnlineExtractorError("Failed to unpack JS: %s" % exc)
@@ -128,7 +132,8 @@ class SportsonlineExtractor:
         headers = self._build_page_headers()
         headers["Referer"] = page_url
         headers["Origin"] = self._get_origin(page_url)
-        headers["Sec-Fetch-Site"] = "same-origin" if urlparse(page_url).netloc == urlparse(iframe_url).netloc else "cross-site"
+        headers["Sec-Fetch-Site"] = "same-origin" if urlparse(
+            page_url).netloc == urlparse(iframe_url).netloc else "cross-site"
         headers["Sec-Fetch-Dest"] = "iframe"
         headers.pop("Sec-Fetch-User", None)
         return headers
@@ -143,15 +148,23 @@ class SportsonlineExtractor:
             "access denied",
         ))
 
-    def _make_request(self, url, headers=None, retries=2, initial_delay=1, timeout=15):
+    def _make_request(
+            self,
+            url,
+            headers=None,
+            retries=2,
+            initial_delay=1,
+            timeout=15):
         if not self.session:
             raise SportOnlineExtractorError("requests non disponibile")
         final_headers = headers or self.base_headers
         last_error = None
         for attempt in range(retries):
             try:
-                enhanced_log("GET %s/%s %s" % (attempt + 1, retries, url[:120]), "DEBUG", "SPORTONLINE")
-                response = self.session.get(url, headers=final_headers, timeout=timeout, verify=False)
+                enhanced_log("GET %s/%s %s" %
+                             (attempt + 1, retries, url[:120]), "DEBUG", "SPORTONLINE")
+                response = self.session.get(
+                    url, headers=final_headers, timeout=timeout, verify=False)
                 if response.status_code == 200:
                     html = response.text
                     if self._looks_like_block_page(html):
@@ -160,17 +173,25 @@ class SportsonlineExtractor:
                 last_error = "HTTP %s" % response.status_code
             except Exception as exc:
                 last_error = exc
-                enhanced_log("Richiesta fallita: %s" % exc, "WARNING", "SPORTONLINE")
+                enhanced_log(
+                    "Richiesta fallita: %s" %
+                    exc, "WARNING", "SPORTONLINE")
             if attempt < retries - 1:
                 time.sleep(initial_delay)
-        raise SportOnlineExtractorError("Richiesta fallita per %s: %s" % (url, last_error))
+        raise SportOnlineExtractorError(
+            "Richiesta fallita per %s: %s" %
+            (url, last_error))
 
     @staticmethod
     def _detect_packed_blocks(html):
         raw_matches = []
-        strict_eval_pattern = re.compile(r"eval\(function\(p,a,c,k,e,.*?\}\(.*?\)\)", re.DOTALL)
-        relaxed_eval_pattern = re.compile(r"eval\(function\(p,a,c,k,e,[dr]\).*?\}\(.*?\)\)", re.DOTALL)
-        script_pattern = re.compile(r"<script[^>]*>(.*?)</script>", re.IGNORECASE | re.DOTALL)
+        strict_eval_pattern = re.compile(
+            r"eval\(function\(p,a,c,k,e,.*?\}\(.*?\)\)", re.DOTALL)
+        relaxed_eval_pattern = re.compile(
+            r"eval\(function\(p,a,c,k,e,[dr]\).*?\}\(.*?\)\)", re.DOTALL)
+        script_pattern = re.compile(
+            r"<script[^>]*>(.*?)</script>",
+            re.IGNORECASE | re.DOTALL)
 
         for script_body in script_pattern.findall(html or ""):
             if "eval(function(p,a,c,k,e" in script_body:
@@ -217,21 +238,29 @@ class SportsonlineExtractor:
     def extract(self, url, request_headers=None):
         self.update_request_headers(request_headers)
         parsed_source = urlparse(url)
-        source_origin = "%s://%s" % (parsed_source.scheme, parsed_source.netloc)
-        source_referer = self._get_request_header("Referer") or source_origin + "/"
-        user_agent = self._get_request_header("User-Agent", self.base_headers["User-Agent"])
+        source_origin = "%s://%s" % (parsed_source.scheme,
+                                     parsed_source.netloc)
+        source_referer = self._get_request_header(
+            "Referer") or source_origin + "/"
+        user_agent = self._get_request_header(
+            "User-Agent", self.base_headers["User-Agent"])
 
         main_headers = self._build_page_headers()
         main_headers["Referer"] = source_referer
         main_headers["Origin"] = source_origin
-        main_html, main_url = self._make_request(url, headers=main_headers, timeout=15)
+        main_html, main_url = self._make_request(
+            url, headers=main_headers, timeout=15)
 
-        iframe_match = re.search(r'<iframe[^>]+(?<!data-)src=["\']([^"\']+)["\']', main_html, re.IGNORECASE)
+        iframe_match = re.search(
+            r'<iframe[^>]+(?<!data-)src=["\']([^"\']+)["\']',
+            main_html,
+            re.IGNORECASE)
         iframe_url = main_url
         iframe_html = main_html
 
         if iframe_match:
-            iframe_url = self._normalize_stream_url(iframe_match.group(1), main_url)
+            iframe_url = self._normalize_stream_url(
+                iframe_match.group(1), main_url)
             candidates = [iframe_url]
             parsed_iframe = urlparse(iframe_url)
             if parsed_iframe.netloc.lower() == "gotdynamic.net":
@@ -243,15 +272,23 @@ class SportsonlineExtractor:
             iframe_html = None
             for candidate_url in candidates:
                 try:
-                    iframe_headers = self._build_iframe_headers(main_url, candidate_url)
-                    iframe_html, iframe_url = self._make_request(candidate_url, headers=iframe_headers, timeout=15, retries=1)
+                    iframe_headers = self._build_iframe_headers(
+                        main_url, candidate_url)
+                    iframe_html, iframe_url = self._make_request(
+                        candidate_url, headers=iframe_headers, timeout=15, retries=1)
                     break
                 except Exception as exc:
-                    enhanced_log("Iframe candidate fallito %s: %s" % (candidate_url, exc), "WARNING", "SPORTONLINE")
+                    enhanced_log(
+                        "Iframe candidate fallito %s: %s" %
+                        (candidate_url, exc), "WARNING", "SPORTONLINE")
             if not iframe_html:
-                raise SportOnlineExtractorError("Tutti gli iframe candidate sono falliti")
+                raise SportOnlineExtractorError(
+                    "Tutti gli iframe candidate sono falliti")
         else:
-            enhanced_log("Nessun iframe, provo HTML principale", "WARNING", "SPORTONLINE")
+            enhanced_log(
+                "Nessun iframe, provo HTML principale",
+                "WARNING",
+                "SPORTONLINE")
 
         parsed_iframe = urlparse(iframe_url)
         playback_headers = {
@@ -262,16 +299,19 @@ class SportsonlineExtractor:
 
         direct_match = self._extract_m3u8_candidate(iframe_html)
         packed_blocks = self._detect_packed_blocks(iframe_html)
-        enhanced_log("Blocchi packed trovati: %s" % len(packed_blocks), "DEBUG", "SPORTONLINE")
+        enhanced_log(
+            "Blocchi packed trovati: %s" %
+            len(packed_blocks),
+            "DEBUG",
+            "SPORTONLINE")
 
         m3u8_url = None
         if direct_match:
             m3u8_url = direct_match
         elif packed_blocks:
             chosen_idx = 1 if len(packed_blocks) > 1 else 0
-            ordered_blocks = [packed_blocks[chosen_idx]] + [
-                block for index, block in enumerate(packed_blocks) if index != chosen_idx
-            ]
+            ordered_blocks = [packed_blocks[chosen_idx]] + [block for index,
+                                                            block in enumerate(packed_blocks) if index != chosen_idx]
             for block in ordered_blocks:
                 try:
                     unpacked_code = extract_unpack(block)
@@ -279,7 +319,9 @@ class SportsonlineExtractor:
                     if m3u8_url:
                         break
                 except Exception as exc:
-                    enhanced_log("Unpack fallito: %s" % exc, "DEBUG", "SPORTONLINE")
+                    enhanced_log(
+                        "Unpack fallito: %s" %
+                        exc, "DEBUG", "SPORTONLINE")
 
         if not m3u8_url:
             raise SportOnlineExtractorError("Nessun URL m3u8 trovato")
@@ -308,9 +350,12 @@ _sportsonline_extractor = SportsonlineExtractor()
 
 def extract_sportonline(url, request_headers=None):
     try:
-        return _sportsonline_extractor.extract(url, request_headers=request_headers)
+        return _sportsonline_extractor.extract(
+            url, request_headers=request_headers)
     except Exception as exc:
-        enhanced_log("Errore estrazione Sportsonline: %s" % exc, "ERROR", "SPORTONLINE")
+        enhanced_log(
+            "Errore estrazione Sportsonline: %s" %
+            exc, "ERROR", "SPORTONLINE")
         return None
 
 
@@ -318,7 +363,11 @@ def is_sportonline_link(url):
     if not url:
         return False
     lowered = url.lower()
-    return any(domain in lowered for domain in ("sportsonline", "sportzonline", "sportssonline"))
+    return any(
+        domain in lowered for domain in (
+            "sportsonline",
+            "sportzonline",
+            "sportssonline"))
 
 
 if __name__ == "__main__":

@@ -16,8 +16,10 @@ try:
         urllib3.disable_warnings(InsecureRequestWarning)
     except ImportError:
         urllib3 = importlib.import_module("requests.packages.urllib3")
-        Retry = importlib.import_module("requests.packages.urllib3.util.retry").Retry
-        InsecureRequestWarning = importlib.import_module("requests.packages.urllib3.exceptions").InsecureRequestWarning
+        Retry = importlib.import_module(
+            "requests.packages.urllib3.util.retry").Retry
+        InsecureRequestWarning = importlib.import_module(
+            "requests.packages.urllib3.exceptions").InsecureRequestWarning
         urllib3.disable_warnings(InsecureRequestWarning)
     REQUESTS_AVAILABLE = True
 except ImportError:
@@ -71,10 +73,23 @@ class Sport99Extractor:
                 raise_on_status=False,
             )
             try:
-                retry = Retry(allowed_methods=["HEAD", "GET", "POST"], **retry_kwargs)
+                retry = Retry(
+                    allowed_methods=[
+                        "HEAD",
+                        "GET",
+                        "POST"],
+                    **retry_kwargs)
             except TypeError:
-                retry = Retry(method_whitelist=["HEAD", "GET", "POST"], **retry_kwargs)
-            adapter = HTTPAdapter(max_retries=retry, pool_connections=3, pool_maxsize=5)
+                retry = Retry(
+                    method_whitelist=[
+                        "HEAD",
+                        "GET",
+                        "POST"],
+                    **retry_kwargs)
+            adapter = HTTPAdapter(
+                max_retries=retry,
+                pool_connections=3,
+                pool_maxsize=5)
             self.session.mount("http://", adapter)
             self.session.mount("https://", adapter)
             self.session.headers.update(self.base_headers)
@@ -104,7 +119,8 @@ class Sport99Extractor:
         last_error = None
         for attempt in range(max(1, retries)):
             try:
-                enhanced_log("GET %s/%s %s" % (attempt + 1, retries, url[:120]), "DEBUG", "SPORT99")
+                enhanced_log("GET %s/%s %s" %
+                             (attempt + 1, retries, url[:120]), "DEBUG", "SPORT99")
                 response = self.session.get(
                     url,
                     headers=final_headers,
@@ -119,14 +135,19 @@ class Sport99Extractor:
                 last_error = "HTTP %s" % response.status_code
             except Exception as exc:
                 last_error = exc
-                enhanced_log("Richiesta fallita: %s" % exc, "WARNING", "SPORT99")
+                enhanced_log(
+                    "Richiesta fallita: %s" %
+                    exc, "WARNING", "SPORT99")
             if attempt < retries - 1:
                 time.sleep(0.35)
-        raise Sport99ExtractorError("Richiesta fallita per %s: %s" % (url, last_error))
+        raise Sport99ExtractorError(
+            "Richiesta fallita per %s: %s" %
+            (url, last_error))
 
     def _build_player_headers(self, url):
         parsed = urlparse(url)
-        origin = "%s://%s" % (parsed.scheme or "https", parsed.netloc) if parsed.netloc else SPORT99_ENTRY_ORIGIN
+        origin = "%s://%s" % (parsed.scheme or "https",
+                              parsed.netloc) if parsed.netloc else SPORT99_ENTRY_ORIGIN
         return {
             "User-Agent": self._get_request_header("User-Agent", self.base_headers["User-Agent"]),
             "Referer": self._get_request_header("Referer", origin + "/"),
@@ -160,7 +181,9 @@ class Sport99Extractor:
     def _unpack(self, h_value, u_value, n_value, t_value, e_value):
         try:
             separator = n_value[e_value]
-            replacements = {n_value[index]: str(index) for index in range(len(n_value))}
+            replacements = {
+                n_value[index]: str(index) for index in range(
+                    len(n_value))}
             result = ""
 
             for item in h_value.split(separator):
@@ -175,7 +198,8 @@ class Sport99Extractor:
                     continue
 
             try:
-                return urllib.parse.unquote(result.encode("latin-1").decode("utf-8", errors="ignore"))
+                return urllib.parse.unquote(result.encode(
+                    "latin-1").decode("utf-8", errors="ignore"))
             except Exception:
                 return result
         except Exception as exc:
@@ -218,7 +242,10 @@ class Sport99Extractor:
         if direct_url:
             return direct_url
 
-        consts = dict(re.findall(r"const\s+([a-zA-Z0-9_]+)\s*=\s*'([^']*)';", js_code or ""))
+        consts = dict(
+            re.findall(
+                r"const\s+([a-zA-Z0-9_]+)\s*=\s*'([^']*)';",
+                js_code or ""))
         construction_lines = re.findall(
             r"const\s+([a-zA-Z0-9_]+)\s*=\s*"
             r"([a-zA-Z0-9_]+\([a-zA-Z0-9_]+\)(?:\s*\+\s*[a-zA-Z0-9_]+\([a-zA-Z0-9_]+\))*);",
@@ -227,13 +254,15 @@ class Sport99Extractor:
 
         for _var_name, expression in construction_lines:
             parts = re.findall(r"\(([a-zA-Z0-9_]+)\)", expression)
-            full_url = "".join([self._decode_base64(consts.get(part, "")) for part in parts])
+            full_url = "".join([self._decode_base64(
+                consts.get(part, "")) for part in parts])
             if ".m3u8" in full_url and "token=" in full_url:
                 return full_url.replace("\\/", "/")
 
         for _var_name, expression in construction_lines:
             parts = re.findall(r"\(([a-zA-Z0-9_]+)\)", expression)
-            full_url = "".join([self._decode_base64(consts.get(part, "")) for part in parts])
+            full_url = "".join([self._decode_base64(
+                consts.get(part, "")) for part in parts])
             if ".m3u8" in full_url:
                 return full_url.replace("\\/", "/")
         return None
@@ -242,7 +271,8 @@ class Sport99Extractor:
         self.update_request_headers(request_headers)
         enhanced_log("Inizio estrazione: %s" % url[:120], "INFO", "SPORT99")
 
-        response = self._make_request(url, headers=self._build_player_headers(url))
+        response = self._make_request(
+            url, headers=self._build_player_headers(url))
         html = response.text
 
         direct_url = self._extract_direct_m3u8(html)
@@ -257,7 +287,12 @@ class Sport99Extractor:
                 raise Sport99ExtractorError("Packed script non trovato")
 
             h_value, u_value, n_value, t_value, e_value, _unused = packed_match.groups()
-            unpacked_js = self._unpack(h_value, int(u_value), n_value, int(t_value), int(e_value))
+            unpacked_js = self._unpack(
+                h_value,
+                int(u_value),
+                n_value,
+                int(t_value),
+                int(e_value))
             stream_url = self._extract_url_from_js(unpacked_js)
 
         if not stream_url:
@@ -280,17 +315,26 @@ class Sport99Extractor:
         }
 
         try:
-            manifest_response = self._make_request(stream_url, headers=stream_headers, timeout=10, retries=1)
+            manifest_response = self._make_request(
+                stream_url, headers=stream_headers, timeout=10, retries=1)
             manifest_text = manifest_response.text
             if manifest_text and manifest_text.lstrip().startswith("#EXTM3U"):
-                enhanced_log("Manifest M3U8 scaricato con sessione Sport99", "INFO", "SPORT99")
+                enhanced_log(
+                    "Manifest M3U8 scaricato con sessione Sport99",
+                    "INFO",
+                    "SPORT99")
                 result["resolved_url"] = manifest_response.url
                 result["destination_url"] = manifest_response.url
                 result["m3u8_content"] = manifest_text
             else:
-                enhanced_log("Manifest Sport99 non valido, lascio fetch ad AppCore", "WARNING", "SPORT99")
+                enhanced_log(
+                    "Manifest Sport99 non valido, lascio fetch ad AppCore",
+                    "WARNING",
+                    "SPORT99")
         except Exception as exc:
-            enhanced_log("Prefetch manifest Sport99 fallito: %s" % exc, "WARNING", "SPORT99")
+            enhanced_log(
+                "Prefetch manifest Sport99 fallito: %s" %
+                exc, "WARNING", "SPORT99")
 
         return result
 

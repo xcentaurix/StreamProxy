@@ -10,7 +10,12 @@ except (ImportError, ValueError):
 
 class GenericHLSExtractor(BaseExtractor):
     def __init__(self, request_headers=None, proxies=None):
-        super(GenericHLSExtractor, self).__init__(request_headers, proxies, extractor_name="generic")
+        super(
+            GenericHLSExtractor,
+            self).__init__(
+            request_headers,
+            proxies,
+            extractor_name="generic")
 
     def extract(self, url, **kwargs):
         parsed = urlparse(url)
@@ -43,14 +48,28 @@ class GenericHLSExtractor(BaseExtractor):
         if explicit_origin and not has_origin:
             headers["origin"] = explicit_origin
 
-        allowed_headers = set([
-            "authorization", "x-api-key", "x-auth-token", "cookie", "x-channel-key",
-            "accept", "accept-language", "accept-encoding", "dnt",
-            "sec-fetch-dest", "sec-fetch-mode", "sec-fetch-site", "sec-fetch-user",
-            "sec-ch-ua", "sec-ch-ua-mobile", "sec-ch-ua-platform",
-            "pragma", "cache-control", "priority",
-        ])
-        blocked_headers = set(["x-forwarded-for", "x-real-ip", "forwarded", "via", "host"])
+        allowed_headers = set(["authorization",
+                               "x-api-key",
+                               "x-auth-token",
+                               "cookie",
+                               "x-channel-key",
+                               "accept",
+                               "accept-language",
+                               "accept-encoding",
+                               "dnt",
+                               "sec-fetch-dest",
+                               "sec-fetch-mode",
+                               "sec-fetch-site",
+                               "sec-fetch-user",
+                               "sec-ch-ua",
+                               "sec-ch-ua-mobile",
+                               "sec-ch-ua-platform",
+                               "pragma",
+                               "cache-control",
+                               "priority",
+                               ])
+        blocked_headers = set(
+            ["x-forwarded-for", "x-real-ip", "forwarded", "via", "host"])
 
         for key, value in self.request_headers.items():
             lower_key = key.lower()
@@ -58,7 +77,9 @@ class GenericHLSExtractor(BaseExtractor):
                 if "chrome" in value.lower() or "applewebkit" in value.lower():
                     headers["user-agent"] = value
                 continue
-            if lower_key in ("referer", "origin") or lower_key in blocked_headers:
+            if lower_key in (
+                "referer",
+                    "origin") or lower_key in blocked_headers:
                 continue
             if lower_key in allowed_headers:
                 headers[lower_key] = value
@@ -68,7 +89,8 @@ class GenericHLSExtractor(BaseExtractor):
             if not headers["cookie"].endswith(";"):
                 headers["cookie"] += ";"
 
-        headers.setdefault("accept-language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7,it;q=0.6")
+        headers.setdefault("accept-language",
+                           "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7,it;q=0.6")
         headers.setdefault("accept-encoding", "gzip, deflate")
 
         return {

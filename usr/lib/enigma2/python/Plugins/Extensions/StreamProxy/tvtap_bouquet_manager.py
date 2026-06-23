@@ -4,12 +4,11 @@ TVTap Bouquet Manager - Gestione dinamica canali TVTap basata su bouquet
 Rileva automaticamente i canali TVTap dal bouquet e gestisce authSign dinamici
 """
 
-import os
 import re
 import time
 import threading
 import hashlib
-from urllib.parse import urlparse, parse_qs, urlencode, urlunparse, unquote, quote
+from urllib.parse import urlparse, parse_qs, unquote, quote
 from datetime import datetime, timedelta
 
 try:
@@ -261,8 +260,8 @@ class TVTapBouquetManager:
 
         try:
             # Extract information from original URL
-            parsed_url = urlparse(original_url)
-            query_params = parse_qs(parsed_url.query)
+            # parsed_url = urlparse(original_url)
+            # query_params = parse_qs(parsed_url.query)
 
             # Look for existing authSign
             current_authsign = None
@@ -270,6 +269,7 @@ class TVTapBouquetManager:
                 match = re.search(pattern, original_url)
                 if match:
                     current_authsign = match.group(1)
+                    print(str(current_authsign))
                     break
 
             # Determine TVTap channel ID
@@ -433,7 +433,7 @@ class TVTapBouquetManager:
                 # Retrieve channel info from cache
                 with self.lock:
                     if cache_key in self.url_cache:
-                        cache_data = self.url_cache[cache_key]
+                        # cache_data = self.url_cache[cache_key]
 
                         for service_ref, channel_info in self.tvtap_channels.items():
                             if channel_info.get('url') == original_url:

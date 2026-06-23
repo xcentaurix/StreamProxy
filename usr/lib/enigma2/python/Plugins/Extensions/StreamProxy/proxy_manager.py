@@ -4,7 +4,7 @@
 from .StreamProxyLog import StreamProxyLogger, enhanced_log
 from Components.config import config
 from enigma import eTimer
-from twisted.internet import reactor
+
 import socket
 import time
 from typing import Optional
@@ -328,6 +328,7 @@ def stop_proxy() -> None:
 
             # Try to stop the reactor if possible
             try:
+                from twisted.internet import reactor
                 if hasattr(reactor, 'running') and reactor.running:
                     enhanced_log(
                         "Attempting to stop Twisted reactor",

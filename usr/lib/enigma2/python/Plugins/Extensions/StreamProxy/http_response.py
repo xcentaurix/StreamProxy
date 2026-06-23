@@ -1,7 +1,9 @@
 # http_response.py - small helpers to normalise AppCore responses
 
 
-def normalize_appcore_result(result, default_content_type="application/vnd.apple.mpegurl"):
+def normalize_appcore_result(
+        result,
+        default_content_type="application/vnd.apple.mpegurl"):
     """
     Convert AppCore result into consistent content/status/content-type.
 
@@ -18,7 +20,8 @@ def normalize_appcore_result(result, default_content_type="application/vnd.apple
     if isinstance(result, dict):
         content = result.get("content", b"")
         status = int(result.get("status", 200) or 200)
-        content_type = result.get("content_type", default_content_type) or default_content_type
+        content_type = result.get("content_type",
+                                  default_content_type) or default_content_type
     elif isinstance(result, tuple):
         raw = result[0] if result else b""
         if isinstance(raw, list):

@@ -282,9 +282,8 @@ class SportsonlineExtractor:
                     break
                 except Exception as exc:
                     enhanced_log(
-                        "Iframe candidate failed %s: %s" % (candidate_url, exc),
-                        "WARNING",
-                        "SPORTONLINE")
+                        "Iframe candidate failed %s: %s" %
+                        (candidate_url, exc), "WARNING", "SPORTONLINE")
             if not iframe_html:
                 raise SportOnlineExtractorError(
                     "All iframe candidates failed")

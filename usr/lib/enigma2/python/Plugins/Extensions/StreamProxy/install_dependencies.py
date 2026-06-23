@@ -10,7 +10,8 @@ import sys
 def install_package(package):
     """Install a Python package"""
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", package])
         print("[OK] %s installed successfully" % package)
         return True
     except subprocess.CalledProcessError:
@@ -49,7 +50,9 @@ def main():
             if install_package(package):
                 print("[OK] %s installed and ready" % package)
             else:
-                print("[WARN] %s not installed - reduced functionality" % package)
+                print(
+                    "[WARN] %s not installed - reduced functionality" %
+                    package)
                 if package == "psutil":
                     print("   -> Cache will use minimal safe configuration")
         else:

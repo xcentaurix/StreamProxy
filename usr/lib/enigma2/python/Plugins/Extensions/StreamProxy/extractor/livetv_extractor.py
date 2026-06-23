@@ -101,11 +101,11 @@ class LiveTVExtractor:
                 )
 
             enhanced_log(
-                "[LIVETV] Response %s: %d bytes" % (
-                    response.status_code,
-                    len(response.text) if hasattr(response, 'text') else len(response.content)),
-                "INFO",
-                "LIVETV")
+                "[LIVETV] Response %s: %d bytes" %
+                (response.status_code, len(
+                    response.text) if hasattr(
+                    response, 'text') else len(
+                    response.content)), "INFO", "LIVETV")
             return response
 
         except Exception as e:
@@ -136,7 +136,8 @@ class LiveTVExtractor:
             self.base_headers["referer"] = urljoin(url, "/")
 
             # Extract player API details
-            player_api_base, method = self._extract_player_api_base(response.text)
+            player_api_base, method = self._extract_player_api_base(
+                response.text)
             if not player_api_base:
                 raise LiveTVExtractorError("Failed to extract player API URL")
 
@@ -153,8 +154,11 @@ class LiveTVExtractor:
 
                 # Get stream URL based on player option
                 stream_data = self._process_player_option(
-                    player_api_base, method, option.get("post"), option.get("nume"), option.get("type")
-                )
+                    player_api_base,
+                    method,
+                    option.get("post"),
+                    option.get("nume"),
+                    option.get("type"))
 
                 if stream_data:
                     stream_url = stream_data.get("url")
@@ -321,7 +325,8 @@ class LiveTVExtractor:
 
                 if channel_id:
                     # Try channel ID specific pattern
-                    pattern = r'%s["\']:\s*{\s*["\']?url["\']?\s*:\s*["\']([^"\']+)["\']' % re.escape(channel_id)
+                    pattern = r'%s["\']:\s*{\s*["\']?url["\']?\s*:\s*["\']([^"\']+)["\']' % re.escape(
+                        channel_id)
                     match = re.search(pattern, html_content)
                     if match:
                         stream_url = match.group(1)
@@ -344,7 +349,8 @@ class LiveTVExtractor:
                     # Check for MPD stream and extract DRM keys
                     if stream_url.endswith(".mpd"):
                         stream_data["type"] = "mpd"
-                        drm_data = self._extract_drm_keys(html_content, channel_id)
+                        drm_data = self._extract_drm_keys(
+                            html_content, channel_id)
                         if drm_data:
                             stream_data.update(drm_data)
 

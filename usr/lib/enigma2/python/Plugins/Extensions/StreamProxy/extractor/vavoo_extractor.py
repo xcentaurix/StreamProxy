@@ -281,7 +281,8 @@ class VavooExtractor:
             resp = self._post_json(_RESOLVE_URL, payload, headers, timeout=18)
             if not resp or resp.status_code != 200:
                 enhanced_log(
-                    "[VAVOO] Resolve HTTP %s" % (resp.status_code if resp else "none"),
+                    "[VAVOO] Resolve HTTP %s" %
+                    (resp.status_code if resp else "none"),
                     "WARNING",
                     "VAVOO")
                 return None

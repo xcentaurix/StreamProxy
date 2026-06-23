@@ -230,25 +230,25 @@ def start_simple_server(port=7860):
                     is_fmp4 = params.get('fmp4', [''])[0] == '1'
                     segment_type = "fMP4" if is_fmp4 else "TS"
                     enhanced_log(
-                        "[%s_REQUEST] %s segment request received: %s" % (segment_type, segment_type, parsed.path),
-                        "INFO",
-                        "SERVER")
+                        "[%s_REQUEST] %s segment request received: %s" %
+                        (segment_type, segment_type, parsed.path), "INFO", "SERVER")
                     enhanced_log(
-                        "[%s_PARAMS] %s parameters: %s" % (segment_type, segment_type, parsed.query),
-                        "DEBUG",
-                        "SERVER")
+                        "[%s_PARAMS] %s parameters: %s" %
+                        (segment_type, segment_type, parsed.query), "DEBUG", "SERVER")
                 elif '/proxy/init.hls.fmp4' in parsed.path:
                     enhanced_log(
-                        "[INIT_FMP4_REQUEST] Init fMP4 request received: %s" % parsed.path,
-                        "INFO",
-                        "SERVER")
+                        "[INIT_FMP4_REQUEST] Init fMP4 request received: %s" %
+                        parsed.path, "INFO", "SERVER")
                     enhanced_log(
-                        "[INIT_FMP4_PARAMS] Init fMP4 parameters: %s" % parsed.query,
-                        "DEBUG",
-                        "SERVER")
+                        "[INIT_FMP4_PARAMS] Init fMP4 parameters: %s" %
+                        parsed.query, "DEBUG", "SERVER")
                 elif '/proxy/m3u' in parsed.path:
                     enhanced_log(
-                        "[M3U_REQUEST] M3U8 request #%d" % getattr(self, '_m3u_count', 0),
+                        "[M3U_REQUEST] M3U8 request #%d" %
+                        getattr(
+                            self,
+                            '_m3u_count',
+                            0),
                         "INFO",
                         "SERVER")
                     self._m3u_count = getattr(self, '_m3u_count', 0) + 1
@@ -296,10 +296,8 @@ def start_simple_server(port=7860):
                             "SERVER")
                     except Exception as appcore_error:
                         enhanced_log(
-                            "[ERROR] [SERVER] APPCORE ERROR: %s: %s" % (
-                                type(appcore_error).__name__, str(appcore_error)),
-                            "ERROR",
-                            "SERVER")
+                            "[ERROR] [SERVER] APPCORE ERROR: %s: %s" %
+                            (type(appcore_error).__name__, str(appcore_error)), "ERROR", "SERVER")
                         self.send_error(
                             500, "AppCore Error: %s" % str(appcore_error))
                         return
@@ -345,9 +343,8 @@ def start_simple_server(port=7860):
                         range_header = None
                     if range_header:
                         enhanced_log(
-                            "[RANGE_REQUEST] Range requested: %s" % range_header,
-                            "DEBUG",
-                            "SERVER")
+                            "[RANGE_REQUEST] Range requested: %s" %
+                            range_header, "DEBUG", "SERVER")
                         try:
                             content, range_status, content_range = apply_range(
                                 content, range_header)
@@ -394,7 +391,9 @@ def start_simple_server(port=7860):
                     self.send_header('Content-Length', str(len(content)))
                     self.end_headers()
 
-                    enhanced_log("Sending %d bytes" % len(content), "INFO", "SERVER")
+                    enhanced_log(
+                        "Sending %d bytes" %
+                        len(content), "INFO", "SERVER")
 
                     if '/ts' in parsed.path and content_type == 'video/mp2t' and len(
                             content) > 0:
@@ -411,9 +410,8 @@ def start_simple_server(port=7860):
                                 "SERVER")
                         else:
                             enhanced_log(
-                                "[WARNING] [SERVER] Potentially invalid TS (sync byte: 0x%02x)" % first_byte,
-                                "WARNING",
-                                "SERVER")
+                                "[WARNING] [SERVER] Potentially invalid TS (sync byte: 0x%02x)" %
+                                first_byte, "WARNING", "SERVER")
 
                     self.wfile.write(content)
                     enhanced_log(
@@ -458,9 +456,8 @@ def start_simple_server(port=7860):
                     self.send_error(500, "Server Error: %s" % str(e))
                 except Exception as send_error_exc:
                     enhanced_log(
-                        "[ERROR] [SERVER] Unable to send error to client: %s" % send_error_exc,
-                        "ERROR",
-                        "SERVER")
+                        "[ERROR] [SERVER] Unable to send error to client: %s" %
+                        send_error_exc, "ERROR", "SERVER")
 
         def log_message(self, format, *args):
             # Disable default HTTP log to avoid spam
@@ -494,7 +491,9 @@ def start_simple_server(port=7860):
 
             _native_server.serve_forever()
         except Exception as e:
-            enhanced_log("[ERROR] Native server error: %s" % e, "ERROR", "SERVER")
+            enhanced_log(
+                "[ERROR] Native server error: %s" %
+                e, "ERROR", "SERVER")
         finally:
             _native_server = None
             _server_port = None
@@ -525,7 +524,9 @@ def stop_proxy_server():
             _server_thread.join(2)
         return True
     except Exception as e:
-        enhanced_log("[ERROR] Error stopping native server: %s" % e, "ERROR", "SERVER")
+        enhanced_log(
+            "[ERROR] Error stopping native server: %s" %
+            e, "ERROR", "SERVER")
         return False
     finally:
         _native_server = None

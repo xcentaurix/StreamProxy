@@ -106,20 +106,36 @@ def sessionstart(reason, **kwargs):
 
                 enhanced_log("3. Starting HTTP server...", "INFO", "PLUGIN")
                 result = server.start_simple_server()
-                enhanced_log("4. Server result: %s" % result, "DEBUG", "PLUGIN")
+                enhanced_log(
+                    "4. Server result: %s" %
+                    result, "DEBUG", "PLUGIN")
 
-                enhanced_log("5. Importing ServiceMonitor...", "DEBUG", "PLUGIN")
+                enhanced_log(
+                    "5. Importing ServiceMonitor...",
+                    "DEBUG",
+                    "PLUGIN")
                 from .ServiceMonitor import StreamProxyServiceMonitor
-                enhanced_log("6. ServiceMonitor imported OK", "DEBUG", "PLUGIN")
+                enhanced_log(
+                    "6. ServiceMonitor imported OK",
+                    "DEBUG",
+                    "PLUGIN")
 
                 service_monitor = StreamProxyServiceMonitor(session)
-                enhanced_log("7. [OK] ServiceMonitor instantiated", "INFO", "PLUGIN")
-                enhanced_log("8. [OK] INITIALIZATION COMPLETE", "INFO", "PLUGIN")
+                enhanced_log(
+                    "7. [OK] ServiceMonitor instantiated",
+                    "INFO",
+                    "PLUGIN")
+                enhanced_log(
+                    "8. [OK] INITIALIZATION COMPLETE",
+                    "INFO",
+                    "PLUGIN")
 
             except ImportError as e:
                 enhanced_log("[ERROR] IMPORT ERROR: %s" % e, "ERROR", "PLUGIN")
             except Exception as e:
-                enhanced_log("[ERROR] GENERIC ERROR: %s" % e, "ERROR", "PLUGIN")
+                enhanced_log(
+                    "[ERROR] GENERIC ERROR: %s" %
+                    e, "ERROR", "PLUGIN")
 
 
 class StreamProxyMain(Screen):
@@ -212,8 +228,10 @@ class StreamProxySetup(Screen):
 
     def updateMenu(self):
         menu_text = "STREAMPROXY CONFIGURATION\n\n"
-        menu_text += "1. Proxy enabled: %s\n" % ('ON' if self.proxy_enabled else 'OFF')
-        menu_text += "2. Debug mode: %s\n\n" % ('ON' if self.debug_mode else 'OFF')
+        menu_text += "1. Proxy enabled: %s\n" % (
+            'ON' if self.proxy_enabled else 'OFF')
+        menu_text += "2. Debug mode: %s\n\n" % (
+            'ON' if self.debug_mode else 'OFF')
         menu_text += "Press OK to modify\nPress GREEN to save"
 
         self["menu"].setText(menu_text)
@@ -221,9 +239,9 @@ class StreamProxySetup(Screen):
     def toggleSetting(self):
         from Screens.ChoiceBox import ChoiceBox
         choices = [
-            ("Proxy enabled: %s" % ('ON' if self.proxy_enabled else 'OFF'), "proxy"),
-            ("Debug mode: %s" % ('ON' if self.debug_mode else 'OFF'), "debug")
-        ]
+            ("Proxy enabled: %s" %
+             ('ON' if self.proxy_enabled else 'OFF'), "proxy"), ("Debug mode: %s" %
+                                                                 ('ON' if self.debug_mode else 'OFF'), "debug")]
         self.session.openWithCallback(
             self.choiceCallback,
             ChoiceBox,

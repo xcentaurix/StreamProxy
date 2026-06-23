@@ -151,7 +151,9 @@ class StreamProxyLogger:
         """Rotate the log file, keeping only the last lines."""
         try:
             _safe_print(
-                "[INFO] Log rotation - current size: %d bytes" % os.path.getsize(self.LOG_FILE))
+                "[INFO] Log rotation - current size: %d bytes" %
+                os.path.getsize(
+                    self.LOG_FILE))
 
             # Close the current file
             if self._log_file:
@@ -266,8 +268,10 @@ def enhanced_log(message, level="INFO", component="CORE"):
 
     if CONSOLE_LOGS:
         _safe_print(
-            "[DEBUG] enhanced_log called: [%s] [%s] %s" % (level, component, message))
+            "[DEBUG] enhanced_log called: [%s] [%s] %s" %
+            (level, component, message))
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    formatted_message = "[%s] [%s] [%s] %s" % (timestamp, level, component, message)
+    formatted_message = "[%s] [%s] [%s] %s" % (
+        timestamp, level, component, message)
     logger = StreamProxyLogger.getInstance()
     logger.log(formatted_message, add_timestamp=False)

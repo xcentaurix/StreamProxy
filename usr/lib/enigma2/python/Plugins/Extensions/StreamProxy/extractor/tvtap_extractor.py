@@ -430,7 +430,8 @@ def main():
             with open(args.build_cache, "w", encoding="utf-8") as f:
                 json.dump({"channels": cache}, f, ensure_ascii=False, indent=2)
             print(
-                "TVTap cache successfully generated in '%s'!" % args.build_cache)
+                "TVTap cache successfully generated in '%s'!" %
+                args.build_cache)
             sys.exit(0)
         except IOError as e:
             enhanced_log(
@@ -479,7 +480,9 @@ def main():
             sys.exit(4)
 
         enhanced_log(
-            "Channel found: %s (ID: %s)" % (found_channel.get('name'), channel_id),
+            "Channel found: %s (ID: %s)" %
+            (found_channel.get('name'),
+             channel_id),
             level="INFO",
             component="TVTAP")
 

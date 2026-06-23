@@ -24,7 +24,8 @@ class ProxyServer:
 
     def __init__(self):
         if ProxyServer._instance is not None:
-            raise RuntimeError("Use ProxyServer.getInstance() to obtain the instance")
+            raise RuntimeError(
+                "Use ProxyServer.getInstance() to obtain the instance")
 
         self.listening_port = config.plugins.streamproxy.port.value
         self.running = False
@@ -64,9 +65,8 @@ class ProxyServer:
                 if result == 0:
                     self.running = True
                     enhanced_log(
-                        "Proxy server already active on port %d" % self.listening_port,
-                        "INFO",
-                        "proxy_manager")
+                        "Proxy server already active on port %d" %
+                        self.listening_port, "INFO", "proxy_manager")
                     return True
             except Exception as e:
                 enhanced_log(
@@ -84,7 +84,8 @@ class ProxyServer:
             if hasattr(server, 'start_proxy_server'):
                 try:
                     # Actual server startup
-                    start_result = server.start_proxy_server(self.listening_port)
+                    start_result = server.start_proxy_server(
+                        self.listening_port)
                     if not start_result:
                         enhanced_log(
                             "start_proxy_server function returned False",
@@ -92,25 +93,26 @@ class ProxyServer:
                             "proxy_manager")
                         return False
 
-                    # Verify that the server has actually started with progressive timeout
+                    # Verify that the server has actually started with
+                    # progressive timeout
                     max_attempts = 5
                     for attempt in range(max_attempts):
                         try:
-                            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                            sock = socket.socket(
+                                socket.AF_INET, socket.SOCK_STREAM)
                             sock.settimeout(1 + attempt)  # Progressive timeout
-                            result = sock.connect_ex(('127.0.0.1', self.listening_port))
+                            result = sock.connect_ex(
+                                ('127.0.0.1', self.listening_port))
                             if result == 0:
                                 self.running = True
                                 enhanced_log(
-                                    "[OK] Proxy server started and verified (attempt %d/%d)" % (attempt + 1, max_attempts),
-                                    "INFO",
-                                    "proxy_manager")
+                                    "[OK] Proxy server started and verified (attempt %d/%d)" %
+                                    (attempt + 1, max_attempts), "INFO", "proxy_manager")
                                 return True
                         except Exception as e:
                             enhanced_log(
-                                "Connection check error (attempt %d/%d): %s" % (attempt + 1, max_attempts, str(e)),
-                                "WARNING",
-                                "proxy_manager")
+                                "Connection check error (attempt %d/%d): %s" %
+                                (attempt + 1, max_attempts, str(e)), "WARNING", "proxy_manager")
                         finally:
                             try:
                                 sock.close()
@@ -125,9 +127,8 @@ class ProxyServer:
                         time.sleep(wait_time)
 
                     enhanced_log(
-                        "Server started but not responding after %d attempts" % max_attempts,
-                        "ERROR",
-                        "proxy_manager")
+                        "Server started but not responding after %d attempts" %
+                        max_attempts, "ERROR", "proxy_manager")
                     return False
 
                 except Exception as e:
@@ -182,9 +183,8 @@ class ProxyServer:
             self._retries += 1
             if self._retries < self._max_retries:
                 enhanced_log(
-                    "Server not ready, retrying (%d/%d)..." % (self._retries, self._max_retries),
-                    "INFO",
-                    "proxy_manager")
+                    "Server not ready, retrying (%d/%d)..." %
+                    (self._retries, self._max_retries), "INFO", "proxy_manager")
                 self._start_timer.start(1000, True)
             else:
                 enhanced_log(
@@ -216,7 +216,10 @@ def get_proxy_server() -> ProxyServer:
 def start_proxy() -> bool:
     """Start the proxy server if it is not already running."""
     logger.log("start_proxy() called")
-    enhanced_log("[PROXY] Attempting to start proxy server", "INFO", "proxy_manager")
+    enhanced_log(
+        "[PROXY] Attempting to start proxy server",
+        "INFO",
+        "proxy_manager")
 
     try:
         # Check if the plugin is enabled in settings
@@ -343,14 +346,14 @@ def stop_proxy() -> None:
                 # Try to close any existing connections
                 from twisted.internet import reactor
                 if hasattr(reactor, 'listenersForPort'):
-                    port_listeners = reactor.listenersForPort(server.listening_port)
+                    port_listeners = reactor.listenersForPort(
+                        server.listening_port)
                     for listener in port_listeners:
                         try:
                             listener.stopListening()
                             enhanced_log(
-                                "Listener on port %d stopped" % server.listening_port,
-                                "INFO",
-                                "proxy_manager")
+                                "Listener on port %d stopped" %
+                                server.listening_port, "INFO", "proxy_manager")
                         except Exception as e:
                             enhanced_log(
                                 "Error stopping listener: %s" % str(e),
@@ -377,19 +380,18 @@ def stop_proxy() -> None:
                     import time
                     time.sleep(1)
                     import socket
-                    temp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    temp_socket = socket.socket(
+                        socket.AF_INET, socket.SOCK_STREAM)
                     temp_socket.settimeout(2)
                     temp_socket.bind(('127.0.0.1', server.listening_port))
                     temp_socket.close()
                     enhanced_log(
-                        "Port %d freed on second attempt" % server.listening_port,
-                        "INFO",
-                        "proxy_manager")
+                        "Port %d freed on second attempt" %
+                        server.listening_port, "INFO", "proxy_manager")
                 except Exception as e2:
                     enhanced_log(
-                        "Unable to free port even on second attempt: %s" % str(e2),
-                        "ERROR",
-                        "proxy_manager")
+                        "Unable to free port even on second attempt: %s" %
+                        str(e2), "ERROR", "proxy_manager")
 
             enhanced_log("Proxy server stopped", "INFO", "proxy_manager")
         else:

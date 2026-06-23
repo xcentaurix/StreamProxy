@@ -121,7 +121,8 @@ class FreeshotExtractor:
             token = token_match.group(1) if token_match else 'default'
             channel_path = parsed.path.split(
                 '/')[1] if len(parsed.path.split('/')) > 1 else 'SkySport24IT'
-            embed_referer = "%s%s/embed.html?token=%s" % (base_url, channel_path, token)
+            embed_referer = "%s%s/embed.html?token=%s" % (
+                base_url, channel_path, token)
 
             return {
                 "resolved_url": url,
@@ -177,9 +178,8 @@ class FreeshotExtractor:
                         m3u8_url = self.fix_video_url(
                             m3u8_url, self.base_headers)
                         enhanced_log(
-                            "FreeshotExtractor: Extracted M3U8 -> %s" % m3u8_url,
-                            "INFO",
-                            "FREESHOT")
+                            "FreeshotExtractor: Extracted M3U8 -> %s" %
+                            m3u8_url, "INFO", "FREESHOT")
 
                         return {
                             "resolved_url": m3u8_url,
@@ -242,12 +242,12 @@ class FreeshotExtractor:
                     else:
                         channel_code = channel_name
                         enhanced_log(
-                            "Fallback: %s -> %s" % (channel_name, channel_code),
-                            "DEBUG",
-                            "FREESHOT")
+                            "Fallback: %s -> %s" %
+                            (channel_name, channel_code), "DEBUG", "FREESHOT")
 
         if channel_code:
-            target_url = "https://popcdn.day/go.php?stream=%s" % quote(channel_code)
+            target_url = "https://popcdn.day/go.php?stream=%s" % quote(
+                channel_code)
         elif not url.startswith('http'):
             target_url = "https://popcdn.day/go.php?stream=%s" % quote(url)
         elif "popcdn.day" not in url and 'lovecdn.ru' not in url:
@@ -255,10 +255,8 @@ class FreeshotExtractor:
         else:
             target_url = url
 
-        enhanced_log(
-            "FreeshotExtractor: Resolving %s (code: %s)" % (target_url, channel_code),
-            "INFO",
-            "FREESHOT")
+        enhanced_log("FreeshotExtractor: Resolving %s (code: %s)" %
+                     (target_url, channel_code), "INFO", "FREESHOT")
 
         try:
             response = self.session.get(target_url, timeout=15)
@@ -305,7 +303,9 @@ class FreeshotExtractor:
                 "FREESHOT")
             return result
         except Exception as e:
-            enhanced_log("FreeshotExtractor error: %s" % e, "ERROR", "FREESHOT")
+            enhanced_log(
+                "FreeshotExtractor error: %s" %
+                e, "ERROR", "FREESHOT")
             import traceback
             enhanced_log(
                 "FreeshotExtractor traceback: %s" % traceback.format_exc(),

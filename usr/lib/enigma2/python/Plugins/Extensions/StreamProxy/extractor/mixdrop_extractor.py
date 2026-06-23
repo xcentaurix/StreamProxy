@@ -344,7 +344,8 @@ class MixdropExtractor:
         if "/mix/" in normalized_url:
             normalized_url = normalized_url.replace("/mix/", "/e/")
 
-        # Mirror domains. Normalise even mirror domains provided as input, e.g. m1xdrop.net.
+        # Mirror domains. Normalise even mirror domains provided as input, e.g.
+        # m1xdrop.net.
         mirror_domains = [
             "mixdrop.co",
             "mixdrop.vip",
@@ -388,10 +389,8 @@ class MixdropExtractor:
                     mirror_url, headers=headers, timeout=10)
 
                 if response.status_code != 200:
-                    enhanced_log(
-                        "HTTP %s for %s..." % (response.status_code, mirror_url[:50]),
-                        "DEBUG",
-                        "Mixdrop")
+                    enhanced_log("HTTP %s for %s..." % (
+                        response.status_code, mirror_url[:50]), "DEBUG", "Mixdrop")
                     solver_result = self._request_flaresolverr(mirror_url)
                     if not solver_result:
                         continue

@@ -37,9 +37,8 @@ def check_server_status(port=None):
                         return True
             except BaseException:
                 enhanced_log(
-                    "Port %d is in use but does not respond as a proxy server" % port,
-                    "WARNING",
-                    "UTILS")
+                    "Port %d is in use but does not respond as a proxy server" %
+                    port, "WARNING", "UTILS")
                 return False
 
         enhanced_log(
@@ -114,9 +113,8 @@ def wait_for_server_start(max_attempts=5, delay=1):
                     with urllib.request.urlopen(test_url, timeout=2) as response:
                         if response.getcode() == 200:
                             enhanced_log(
-                                "Proxy server started (attempt %d/%d)" % (attempt + 1, max_attempts),
-                                "INFO",
-                                "UTILS")
+                                "Proxy server started (attempt %d/%d)" %
+                                (attempt + 1, max_attempts), "INFO", "UTILS")
                             return True
                 except BaseException:
                     pass

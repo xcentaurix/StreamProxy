@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
+import importlib.util
 
 __license__ = "GPL-v2"
 __version__ = "1.0_beta"
@@ -33,7 +34,5 @@ localeInit()
 language.addCallback(localeInit)
 
 
-import importlib.util
 CRYPTO_AVAILABLE = importlib.util.find_spec("Crypto.Cipher.AES") is not None
 print("[StreamProxy] Plugin init")
-

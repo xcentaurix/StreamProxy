@@ -1,0 +1,9 @@
+{
+  "DADDY_PROXY": "username:password@proxy.example.com:8080",
+  "PROXY": "proxy.example.com:8080",
+  "TIMEOUT": 10,
+  "RETRY_COUNT": 3,
+  "USER_AGENT": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+  "DEBUG": true,
+  "CACHE_TTL": 3600
+}

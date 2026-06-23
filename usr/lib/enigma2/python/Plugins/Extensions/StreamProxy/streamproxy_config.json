@@ -1,0 +1,7 @@
+{
+    "PROXY": "",
+    "DADDY_PROXY": "",
+    "REQUEST_TIMEOUT": 15,
+    "VERIFY_SSL": false,
+    "NO_PROXY_DOMAINS": "github.com,raw.githubusercontent.com"
+}

@@ -7,19 +7,17 @@ Manages TVTap streams using stream.mardio.link with wmsAuthSign tokens
 import re
 import time
 import base64
-import json
 import threading
 import hashlib
-from urllib.parse import urlparse, parse_qs, urlencode, urlunparse, unquote, quote
+from urllib.parse import urlparse, parse_qs, quote
 from datetime import datetime, timedelta
+
 
 try:
     from .StreamProxyLog import enhanced_log
-    import requests
 except ImportError:
     def enhanced_log(message, level="INFO", component="TVTAP_WMS"):
         print(f"[{level}] [{component}] {message}")
-    import requests
 
 
 class TVTapWMSManager:
@@ -368,7 +366,6 @@ class TVTapWMSManager:
             enhanced_log(f"Error resolving TVTap WMS URL: {e}", "ERROR")
             return None
 
-
     def _is_cache_valid(self, cache_data):
         """Checks whether cached data is still valid."""
         if not cache_data or 'expires_at' not in cache_data:
@@ -563,13 +560,11 @@ class TVTapWMSManager:
             enhanced_log(f"Stack trace: {traceback.format_exc()}", "DEBUG")
             return None
 
-
     def _get_cache_key(self, url):
         """Generates cache key for URL."""
         parsed = urlparse(url)
         base_url = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
         return hashlib.md5(base_url.encode()).hexdigest()
-
 
     def get_proxy_url_for_wms_url(
             self,
@@ -604,7 +599,6 @@ class TVTapWMSManager:
         """Cleans expired cache entries."""
         with self.lock:
             expired_keys = []
-
             for key, data in self.url_cache.items():
                 if not self._is_cache_valid(data):
                     expired_keys.append(key)

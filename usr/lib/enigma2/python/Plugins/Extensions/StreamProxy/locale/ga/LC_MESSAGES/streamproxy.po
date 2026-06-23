@@ -1,0 +1,51 @@
+# streamproxy translations
+# Copyright (C) 2025 Lululla Team
+# This file is distributed under the same license as the Lululla package.
+# [lululla] <ekekaz@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: streamproxy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-06-23 18:51+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: Irish <gaeilge-gnulinux@lists.sourceforge.net>\n"
+"Language: ga\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : n==2 ? 1 : 2;\n"
+
+msgid "Abilita Stream Proxy"
+msgstr ""
+
+msgid "Abilita filtro canali"
+msgstr "Cumasaigh scagaire cainéal"
+
+msgid "Annulla"
+msgstr "Cealaigh"
+
+msgid "Mostra notifiche"
+msgstr "Taispeáin fógraí"
+
+msgid "Numero massimo righe log"
+msgstr "Líon uasta na línte logála"
+
+msgid "Porta proxy"
+msgstr "Seachfhreastalaí Porta"
+
+msgid "Salva"
+msgstr "Salbha"
+
+msgid "StreamProxy Setup"
+msgstr "Socrú StreamProxy"
+
+msgid "User-Agent"
+msgstr "Úsáideoir-Gníomhaire"
+
+msgid "User-Agent personalizzato"
+msgstr "Saincheaptha Úsáideoir-Gníomhaire"
+
+msgid "Visualizza log"
+msgstr "Féach ar logaí"

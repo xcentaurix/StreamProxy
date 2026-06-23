@@ -1,0 +1,51 @@
+# streamproxy translations
+# Copyright (C) 2025 Lululla Team
+# This file is distributed under the same license as the Lululla package.
+# [lululla] <ekekaz@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: streamproxy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-06-23 19:02+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "Abilita Stream Proxy"
+msgstr ""
+
+msgid "Abilita filtro canali"
+msgstr "Увімкнути фільтр каналів"
+
+msgid "Annulla"
+msgstr "Скасувати"
+
+msgid "Mostra notifiche"
+msgstr "Показати сповіщення"
+
+msgid "Numero massimo righe log"
+msgstr "Максимальна кількість рядків журналу"
+
+msgid "Porta proxy"
+msgstr "Порт проксі"
+
+msgid "Salva"
+msgstr "Сальва"
+
+msgid "StreamProxy Setup"
+msgstr "Налаштування StreamProxy"
+
+msgid "User-Agent"
+msgstr "Користувач-Агент"
+
+msgid "User-Agent personalizzato"
+msgstr "Спеціальний агент користувача"
+
+msgid "Visualizza log"
+msgstr "Переглянути журнали"

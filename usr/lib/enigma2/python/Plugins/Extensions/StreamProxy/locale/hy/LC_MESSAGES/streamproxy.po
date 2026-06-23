@@ -1,0 +1,50 @@
+# streamproxy translations
+# Copyright (C) 2025 Lululla Team
+# This file is distributed under the same license as the Lululla package.
+# [lululla] <ekekaz@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: streamproxy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-06-23 18:52+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: Armenian\n"
+"Language: hy\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Abilita Stream Proxy"
+msgstr "Abilita Stream վստահված անձ"
+
+msgid "Abilita filtro canali"
+msgstr "Միացնել ալիքի զտիչը"
+
+msgid "Annulla"
+msgstr "Չեղարկել"
+
+msgid "Mostra notifiche"
+msgstr "Ցույց տալ ծանուցումները"
+
+msgid "Numero massimo righe log"
+msgstr "Մատյան գծերի առավելագույն քանակը"
+
+msgid "Porta proxy"
+msgstr "Պորտայի վստահված անձ"
+
+msgid "Salva"
+msgstr "Սալվա"
+
+msgid "StreamProxy Setup"
+msgstr "StreamProxy-ի կարգավորում"
+
+msgid "User-Agent"
+msgstr "Օգտատեր-Գործակալ"
+
+msgid "User-Agent personalizzato"
+msgstr "Պատվերով օգտագործող-գործակալ"
+
+msgid "Visualizza log"
+msgstr "Դիտեք տեղեկամատյանները"

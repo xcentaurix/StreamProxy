@@ -1,0 +1,50 @@
+# streamproxy translations
+# Copyright (C) 2025 Lululla Team
+# This file is distributed under the same license as the Lululla package.
+# [lululla] <ekekaz@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: streamproxy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-06-23 18:55+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: Macedonian <ufo@linux.net.mk>\n"
+"Language: mk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Abilita Stream Proxy"
+msgstr "Прокси за тек на Abilita"
+
+msgid "Abilita filtro canali"
+msgstr "Овозможи филтер за канал"
+
+msgid "Annulla"
+msgstr "Откажи"
+
+msgid "Mostra notifiche"
+msgstr "Прикажи известувања"
+
+msgid "Numero massimo righe log"
+msgstr "Максимален број на линии за дневници"
+
+msgid "Porta proxy"
+msgstr "Порта прокси"
+
+msgid "Salva"
+msgstr "Салва"
+
+msgid "StreamProxy Setup"
+msgstr "Поставување StreamProxy"
+
+msgid "User-Agent"
+msgstr "Кориснички агент"
+
+msgid "User-Agent personalizzato"
+msgstr "Прилагодено кориснички агент"
+
+msgid "Visualizza log"
+msgstr "Прикажи дневници"

@@ -1,0 +1,51 @@
+# streamproxy translations
+# Copyright (C) 2025 Lululla Team
+# This file is distributed under the same license as the Lululla package.
+# [lululla] <ekekaz@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: streamproxy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-06-23 19:01+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: Turkish <gnome-turk@gnome.org>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Abilita Stream Proxy"
+msgstr "Abilita Akış Proxy'si"
+
+msgid "Abilita filtro canali"
+msgstr "Kanal filtresini etkinleştir"
+
+msgid "Annulla"
+msgstr "İptal etmek"
+
+msgid "Mostra notifiche"
+msgstr "Bildirimleri göster"
+
+msgid "Numero massimo righe log"
+msgstr "Maksimum günlük satırı sayısı"
+
+msgid "Porta proxy"
+msgstr "Porta proxy'si"
+
+msgid "Salva"
+msgstr "salva"
+
+msgid "StreamProxy Setup"
+msgstr "StreamProxy Kurulumu"
+
+msgid "User-Agent"
+msgstr "Kullanıcı Aracısı"
+
+msgid "User-Agent personalizzato"
+msgstr "Özel Kullanıcı Aracısı"
+
+msgid "Visualizza log"
+msgstr "Günlükleri görüntüle"

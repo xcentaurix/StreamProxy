@@ -1,0 +1,51 @@
+# streamproxy translations
+# Copyright (C) 2025 Lululla Team
+# This file is distributed under the same license as the Lululla package.
+# [lululla] <ekekaz@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: streamproxy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-06-23 19:03+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: Vietnamese <translation-team-vi@lists.sourceforge.net>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Abilita Stream Proxy"
+msgstr "Proxy luồng khả năng"
+
+msgid "Abilita filtro canali"
+msgstr "Bật bộ lọc kênh"
+
+msgid "Annulla"
+msgstr "Hủy bỏ"
+
+msgid "Mostra notifiche"
+msgstr "Hiển thị thông báo"
+
+msgid "Numero massimo righe log"
+msgstr "Số lượng dòng nhật ký tối đa"
+
+msgid "Porta proxy"
+msgstr "Proxy cổng"
+
+msgid "Salva"
+msgstr ""
+
+msgid "StreamProxy Setup"
+msgstr "Thiết lập StreamProxy"
+
+msgid "User-Agent"
+msgstr "Tác nhân người dùng"
+
+msgid "User-Agent personalizzato"
+msgstr "Tác nhân người dùng tùy chỉnh"
+
+msgid "Visualizza log"
+msgstr "Xem nhật ký"

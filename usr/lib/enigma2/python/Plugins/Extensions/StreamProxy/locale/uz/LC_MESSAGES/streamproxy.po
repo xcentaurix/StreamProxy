@@ -1,0 +1,50 @@
+# streamproxy translations
+# Copyright (C) 2025 Lululla Team
+# This file is distributed under the same license as the Lululla package.
+# [lululla] <ekekaz@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: streamproxy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-06-23 19:02+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: Uzbek\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Abilita Stream Proxy"
+msgstr "Abilita Stream proksi"
+
+msgid "Abilita filtro canali"
+msgstr "Kanal filtrini yoqish"
+
+msgid "Annulla"
+msgstr "Bekor qilish"
+
+msgid "Mostra notifiche"
+msgstr "Bildirishnomalarni ko'rsatish"
+
+msgid "Numero massimo righe log"
+msgstr "Jurnal qatorlarining maksimal soni"
+
+msgid "Porta proxy"
+msgstr "Porta proksi"
+
+msgid "Salva"
+msgstr ""
+
+msgid "StreamProxy Setup"
+msgstr "StreamProxy sozlamalari"
+
+msgid "User-Agent"
+msgstr "Foydalanuvchi-Agent"
+
+msgid "User-Agent personalizzato"
+msgstr "Maxsus foydalanuvchi-agent"
+
+msgid "Visualizza log"
+msgstr "Jurnallarni ko'rish"

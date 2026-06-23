@@ -1,0 +1,50 @@
+# streamproxy translations
+# Copyright (C) 2025 Lululla Team
+# This file is distributed under the same license as the Lululla package.
+# [lululla] <ekekaz@gmail.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: streamproxy\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2026-06-23 18:54+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: Central Khmer\n"
+"Language: km\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Abilita Stream Proxy"
+msgstr "ប្រូកស៊ីស្ទ្រីម Abilita"
+
+msgid "Abilita filtro canali"
+msgstr "បើកតម្រងឆានែល"
+
+msgid "Annulla"
+msgstr "បោះបង់"
+
+msgid "Mostra notifiche"
+msgstr "បង្ហាញការជូនដំណឹង"
+
+msgid "Numero massimo righe log"
+msgstr "ចំនួនអតិបរមានៃបន្ទាត់កំណត់ហេតុ"
+
+msgid "Porta proxy"
+msgstr "ប្រូកស៊ី Porta"
+
+msgid "Salva"
+msgstr "សាល់វ៉ា"
+
+msgid "StreamProxy Setup"
+msgstr "ការដំឡើង StreamProxy"
+
+msgid "User-Agent"
+msgstr "ភ្នាក់ងារអ្នកប្រើប្រាស់"
+
+msgid "User-Agent personalizzato"
+msgstr "ភ្នាក់ងារអ្នកប្រើប្រាស់ផ្ទាល់ខ្លួន"
+
+msgid "Visualizza log"
+msgstr "មើលកំណត់ហេតុ"

@@ -1,11 +1,8 @@
 **StreamProxy**
 
 ## Github status
-[![Build](https://github.com/oe-alliance-plugins/StreamProxy/actions/workflows/buildbot.yml/badge.svg)](https://github.com/oe-alliance-plugins/StreamProxy/actions/workflows/buildbot.yml)
-[![Lint Status](https://github.com/oe-alliance-plugins/StreamProxy/actions/workflows/pylint.yml/badge.svg)](https://github.com/oe-alliance-plugins/StreamProxy/actions/workflows/pylint.yml)
-[![Ruff Status](https://github.com/oe-alliance-plugins/StreamProxy/actions/workflows/ruff.yml/badge.svg)](https://github.com/oe-alliance-plugins/StreamProxy/actions/workflows/ruff.yml)
-[![Build Status](https://github.com/oe-alliance-plugins/StreamProxy/actions/workflows/compile.yml/badge.svg)](https://github.com/oe-alliance-plugins/StreamProxy/actions/workflows/compile.yml)
-[![AUTOTAG](https://github.com/oe-alliance-plugins/StreamProxy/actions/workflows/autotag.yml/badge.svg)](https://github.com/oe-alliance-plugins/StreamProxy/actions/workflows/autotag.yml)
+[![Lint Status](https://github.com/OwnerPlugins/StreamProxy/actions/workflows/pylint.yml/badge.svg)](https://github.com/OwnerPlugins/StreamProxy/actions/workflows/pylint.yml)
+[![Ruff Status](https://github.com/OwnerPlugins/StreamProxy/actions/workflows/ruff.yml/badge.svg)](https://github.com/OwnerPlugins/StreamProxy/actions/workflows/ruff.yml)
 
 
 # ⭐️ StreamProxy

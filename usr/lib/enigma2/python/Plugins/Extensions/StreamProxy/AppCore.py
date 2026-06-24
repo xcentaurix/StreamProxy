@@ -862,7 +862,10 @@ def get_dlhd_session():
                 result = resolve_via_proxy_esterno(url, headers)
                 if result and result.get("resolved_url"):
                     # Simulate response
-                    return requests.get(result["resolved_url"], headers=headers, timeout=timeout)
+                    return requests.get(
+                        result["resolved_url"],
+                        headers=headers,
+                        timeout=timeout)
                 return None
         return ExternalProxySession()
     return None
@@ -1240,7 +1243,10 @@ def resolve_m3u8_link(url, headers=None, **kwargs):
     # EXTERNAL PROXY: Check before any extractor
     # =====================================================================
     if EXTERNAL_PROXY_AVAILABLE and is_proxy_esterno_attivo():
-        enhanced_log("External proxy active, delegating resolve", "INFO", "AppCore")
+        enhanced_log(
+            "External proxy active, delegating resolve",
+            "INFO",
+            "AppCore")
         external_result = resolve_via_proxy_esterno(clean_url, current_headers)
         if external_result and external_result.get("resolved_url"):
             enhanced_log("URL resolved by external proxy", "INFO", "AppCore")
@@ -2263,16 +2269,23 @@ def proxy_m3u(request=None, **kwargs):
         # =====================================================================
         if EXTERNAL_PROXY_AVAILABLE and is_proxy_esterno_attivo():
             enhanced_log("Delegating to external proxy", "INFO", "AppCore")
-            external_result = resolve_via_proxy_esterno(m3u_url, custom_headers)
+            external_result = resolve_via_proxy_esterno(
+                m3u_url, custom_headers)
             if external_result and external_result.get("m3u8_content"):
-                enhanced_log("M3U8 obtained from external proxy", "INFO", "AppCore")
+                enhanced_log(
+                    "M3U8 obtained from external proxy",
+                    "INFO",
+                    "AppCore")
                 return {
                     'content': external_result["m3u8_content"].encode(),
                     'status': 200,
                     'content_type': 'application/vnd.apple.mpegurl'
                 }
             elif external_result and external_result.get("resolved_url"):
-                enhanced_log("Using resolved URL from external proxy", "INFO", "AppCore")
+                enhanced_log(
+                    "Using resolved URL from external proxy",
+                    "INFO",
+                    "AppCore")
                 m3u_url = external_result["resolved_url"]
                 if external_result.get("headers"):
                     custom_headers.update(external_result["headers"])
@@ -2390,9 +2403,7 @@ def proxy_m3u(request=None, **kwargs):
                                     del AES_KEY_CACHE[k]
                                 is_same_channel = False  # Force new download
                                 enhanced_log(
-                                    "[CACHE_INVALIDATED] Cache invalidated for token refresh",
-                                    "INFO",
-                                    "AppCore")
+                                    "[CACHE_INVALIDATED] Cache invalidated for token refresh", "INFO", "AppCore")
                             else:
                                 enhanced_log(
                                     "[TOKEN_VALID] Token valid for %ds" %
@@ -2737,9 +2748,7 @@ def proxy_m3u(request=None, **kwargs):
 
                             # Remove EXT-X-MAP for compatibility
                             enhanced_log(
-                                "[INIT_SKIP] Removed EXT-X-MAP for Enigma2 compatibility",
-                                "INFO",
-                                "AppCore")
+                                "[INIT_SKIP] Removed EXT-X-MAP for Enigma2 compatibility", "INFO", "AppCore")
                             continue
 
                         except Exception as e:
@@ -2995,14 +3004,10 @@ def proxy_m3u(request=None, **kwargs):
                                     "[M3U8_ALT] Alternative M3U8 processed successfully", "INFO", "AppCore")
                             else:
                                 enhanced_log(
-                                    "[M3U8_ALT] Alternative URL has no valid video segments",
-                                    "WARNING",
-                                    "AppCore")
+                                    "[M3U8_ALT] Alternative URL has no valid video segments", "WARNING", "AppCore")
                         else:
                             enhanced_log(
-                                "[M3U8_ALT] Alternative URL is not a valid M3U8",
-                                "WARNING",
-                                "AppCore")
+                                "[M3U8_ALT] Alternative URL is not a valid M3U8", "WARNING", "AppCore")
                     else:
                         enhanced_log(
                             "[M3U8_ALT] Alternative URL HTTP %s" %
@@ -3385,7 +3390,10 @@ def proxy_ts(request=None, **kwargs):
         # =====================================================================
         if EXTERNAL_PROXY_AVAILABLE and is_proxy_esterno_attivo() and (
                 'stream.mardio.link' in ts_url.lower() or is_cdn_daddy_url(ts_url)):
-            enhanced_log("Delegating segment to external proxy", "INFO", "proxy_ts")
+            enhanced_log(
+                "Delegating segment to external proxy",
+                "INFO",
+                "proxy_ts")
             try:
                 # Build proxy URL with headers from kwargs
                 proxy_segment_url = "http://127.0.0.1:7860/proxy/ts?url=%s&stream_id=%s" % (
@@ -3394,16 +3402,22 @@ def proxy_ts(request=None, **kwargs):
                     if key.lower().startswith("h_"):
                         proxy_segment_url += "&%s=%s" % (key, value)
                 # Fetch via external proxy
-                response = fetch_segment_via_proxy_esterno(proxy_segment_url, timeout=timeout)
+                response = fetch_segment_via_proxy_esterno(
+                    proxy_segment_url, timeout=timeout)
                 if response and response.status_code == 200:
-                    enhanced_log("Segment fetched via external proxy", "INFO", "proxy_ts")
+                    enhanced_log(
+                        "Segment fetched via external proxy",
+                        "INFO",
+                        "proxy_ts")
                     return {
                         'content': response.content,
                         'status': 200,
                         'content_type': 'video/mp2t'
                     }
             except Exception as e:
-                enhanced_log("External proxy segment fetch failed: %s" % e, "WARNING", "proxy_ts")
+                enhanced_log(
+                    "External proxy segment fetch failed: %s" %
+                    e, "WARNING", "proxy_ts")
                 # Fallback to normal processing
         # =====================================================================
 

@@ -1,9 +1,9 @@
 {
   "builder": "tools/build_enigma2_distro.py",
-  "built_at_utc": "2026-05-04T22:32:25Z",
+  "built_at_utc": "2026-06-24T05:22:40Z",
   "package": "enigma2-plugin-extensions-streamproxy",
   "plugin": "StreamProxy",
   "python": "python3",
   "target": "/usr/lib/enigma2/python/Plugins/Extensions/StreamProxy",
-  "version": "2026.05.05.0032"
+  "version": "2026.06.24.0722"
 }

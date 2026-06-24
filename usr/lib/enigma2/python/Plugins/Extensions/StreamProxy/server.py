@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# server.py - HTTP server for StreamProxy (Twisted + native fallback)
 
 from twisted.web import server, resource
 from twisted.internet import threads
@@ -175,7 +176,7 @@ class ProxyKeyResource(resource.Resource):
 # --- Native HTTP server fallback (for environments without Twisted) ---
 def start_simple_server(port=7860):
     """Start a simple HTTP server for Enigma2 (native fallback)."""
-    global _server_thread
+    global _native_server, _server_thread, _server_port
     from .StreamProxyLog import enhanced_log
     import threading
     try:
@@ -186,7 +187,16 @@ def start_simple_server(port=7860):
 
         class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
             daemon_threads = True
-    from urllib.parse import urlparse, parse_qs
+    from urllib.parse import urlparse
+
+    def _parse_query_safe(qs):
+        """Split on literal & only, preserving %26 inside url value."""
+        params = {}
+        for part in qs.split('&'):
+            if '=' in part:
+                k, _, v = part.partition('=')
+                params[k] = [v]
+        return params
 
     if _server_thread is not None and _server_thread.is_alive():
         enhanced_log(
@@ -226,22 +236,31 @@ def start_simple_server(port=7860):
                     return
 
                 if '/proxy/ts' in parsed.path:
-                    params = parse_qs(parsed.query)
+                    # Detect if it is fMP4 from parameters
+                    params = _parse_query_safe(parsed.query)
                     is_fmp4 = params.get('fmp4', [''])[0] == '1'
                     segment_type = "fMP4" if is_fmp4 else "TS"
                     enhanced_log(
                         "[%s_REQUEST] %s segment request received: %s" %
-                        (segment_type, segment_type, parsed.path), "INFO", "SERVER")
+                        (segment_type, segment_type, parsed.path),
+                        "INFO",
+                        "SERVER")
                     enhanced_log(
                         "[%s_PARAMS] %s parameters: %s" %
-                        (segment_type, segment_type, parsed.query), "DEBUG", "SERVER")
+                        (segment_type, segment_type, parsed.query),
+                        "DEBUG",
+                        "SERVER")
                 elif '/proxy/init.hls.fmp4' in parsed.path:
                     enhanced_log(
                         "[INIT_FMP4_REQUEST] Init fMP4 request received: %s" %
-                        parsed.path, "INFO", "SERVER")
+                        parsed.path,
+                        "INFO",
+                        "SERVER")
                     enhanced_log(
                         "[INIT_FMP4_PARAMS] Init fMP4 parameters: %s" %
-                        parsed.query, "DEBUG", "SERVER")
+                        parsed.query,
+                        "DEBUG",
+                        "SERVER")
                 elif '/proxy/m3u' in parsed.path:
                     enhanced_log(
                         "[M3U_REQUEST] M3U8 request #%d" %
@@ -264,7 +283,7 @@ def start_simple_server(port=7860):
                         "INFO",
                         "SERVER")
 
-                    params = parse_qs(parsed.query)
+                    params = _parse_query_safe(parsed.query)
 
                     enhanced_log(
                         "Valid proxy request: %s" % parsed.path,
@@ -273,6 +292,7 @@ def start_simple_server(port=7860):
 
                     from .AppCore import service_monitor_callback
 
+                    # Extract parameters
                     kwargs = {k: v[0] for k, v in params.items()}
                     enhanced_log(
                         "Extracted parameters: %d elements" % len(kwargs),
@@ -283,6 +303,7 @@ def start_simple_server(port=7860):
                         "DEBUG",
                         "SERVER")
 
+                    # Call AppCore
                     enhanced_log(
                         "[SERVER] === CALLING APPCORE ===",
                         "INFO",
@@ -297,11 +318,14 @@ def start_simple_server(port=7860):
                     except Exception as appcore_error:
                         enhanced_log(
                             "[ERROR] [SERVER] APPCORE ERROR: %s: %s" %
-                            (type(appcore_error).__name__, str(appcore_error)), "ERROR", "SERVER")
+                            (type(appcore_error).__name__, str(appcore_error)),
+                            "ERROR",
+                            "SERVER")
                         self.send_error(
                             500, "AppCore Error: %s" % str(appcore_error))
                         return
 
+                    # Prepare content
                     enhanced_log(
                         "[SERVER] === PREPARING RESPONSE CONTENT ===",
                         "INFO",
@@ -338,13 +362,16 @@ def start_simple_server(port=7860):
                         self.send_error(500, "Empty content from AppCore")
                         return
 
+                    # Handle Range requests
                     range_header = self.headers.get('Range')
                     if content_type == 'video/mp2t':
                         range_header = None
                     if range_header:
                         enhanced_log(
                             "[RANGE_REQUEST] Range requested: %s" %
-                            range_header, "DEBUG", "SERVER")
+                            range_header,
+                            "DEBUG",
+                            "SERVER")
                         try:
                             content, range_status, content_range = apply_range(
                                 content, range_header)
@@ -363,6 +390,7 @@ def start_simple_server(port=7860):
                     else:
                         self.send_response(response_status)
 
+                    # Headers - determine content type from result
                     enhanced_log(
                         "[SERVER] === SETTING RESPONSE HEADERS ===",
                         "INFO",
@@ -395,6 +423,7 @@ def start_simple_server(port=7860):
                         "Sending %d bytes" %
                         len(content), "INFO", "SERVER")
 
+                    # Final verification before sending
                     if '/ts' in parsed.path and content_type == 'video/mp2t' and len(
                             content) > 0:
                         first_byte = content[0] if isinstance(

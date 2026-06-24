@@ -355,8 +355,7 @@ class StreamProxyServiceMonitor:
 
                     if not found_url:
                         enhanced_log(
-                            "[SERVICEMONITOR] #EXTVLCOPT reference without stream URL, ignored",
-                            "WARNING")
+                            "[SERVICEMONITOR] #EXTVLCOPT reference without stream URL, ignored", "WARNING")
                         self._reset_proxy_state()
                         return self._call_orig_playService(
                             ref, checkParentalControl, forceRestart, adjust)
@@ -917,8 +916,7 @@ class StreamProxyServiceMonitor:
                 parts[0] = '5001'
                 new_ref_str = ':'.join(parts)
                 enhanced_log(
-                    "[SERVICEMONITOR] Reference modified for exteplayer3 (5001)",
-                    "INFO")
+                    "[SERVICEMONITOR] Reference modified for exteplayer3 (5001)", "INFO")
                 return eServiceReference(new_ref_str)
         except Exception as e:
             enhanced_log(

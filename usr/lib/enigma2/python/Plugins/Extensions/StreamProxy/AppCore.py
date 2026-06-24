@@ -3704,7 +3704,7 @@ def clear_stream_cache():
     FAILED_SEGMENTS_CACHE.clear()
     VAVOO_FINAL_M3U8_CACHE.clear()
     URL_MAPPING.clear()
-    URL_COUNTER = 1
+    # URL_COUNTER = 1
 
     enhanced_log(
         "[CACHE_CLEAR] Complete cleanup: %d streams, %d AES keys" % (

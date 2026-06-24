@@ -176,7 +176,7 @@ class ProxyKeyResource(resource.Resource):
 # --- Native HTTP server fallback (for environments without Twisted) ---
 def start_simple_server(port=7860):
     """Start a simple HTTP server for Enigma2 (native fallback)."""
-    global _native_server, _server_thread, _server_port
+    global _server_thread
     from .StreamProxyLog import enhanced_log
     import threading
     try:

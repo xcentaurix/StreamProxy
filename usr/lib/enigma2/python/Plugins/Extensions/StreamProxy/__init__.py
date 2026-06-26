@@ -15,7 +15,7 @@ import os
 print("[StreamProxy] Plugin init")
 
 __license__ = "GPL-v2"
-__version__ = "1.0_beta"
+__version__ = "1.2_20260626"
 
 
 PluginLanguageDomain = "streamproxy"

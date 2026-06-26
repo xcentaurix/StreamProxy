@@ -1,0 +1,11 @@
+Package: enigma2-plugin-extensions-streamproxy
+Version: 1.0
+Section: enigma2
+Priority: optional
+Architecture: all
+Maintainer: Lululla
+Description: StreamProxy
+Source: enigma2-plugin-extensions-streamproxy
+Homepage: https://github.com/OwnerPlugins
+License: GPL-3.0
+OE: OE-Alliance

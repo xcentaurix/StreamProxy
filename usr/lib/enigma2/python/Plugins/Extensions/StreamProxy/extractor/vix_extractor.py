@@ -204,7 +204,9 @@ class VixSrcExtractor:
                 retries=2)
         except VixExtractorError as e:
             if "404" in str(e):
-                raise VixExtractorError("VixSrc API endpoint not found (404): %s" % api_url)
+                raise VixExtractorError(
+                    "VixSrc API endpoint not found (404): %s" %
+                    api_url)
             enhanced_log("API request failed: %s" % e, "WARNING", "VIX")
             return None
 
@@ -230,13 +232,19 @@ class VixSrcExtractor:
                 try:
                     payload = json.loads(text)
                 except (ValueError, json.JSONDecodeError) as exc2:
-                    raise VixExtractorError("Invalid API response from %s: %s" % (api_url, exc2))
+                    raise VixExtractorError(
+                        "Invalid API response from %s: %s" %
+                        (api_url, exc2))
             else:
-                raise VixExtractorError("Invalid API response from %s: response is not JSON" % api_url)
+                raise VixExtractorError(
+                    "Invalid API response from %s: response is not JSON" %
+                    api_url)
 
         embed_path = payload.get("src")
         if not embed_path:
-            raise VixExtractorError("Missing embed src in API response from %s" % api_url)
+            raise VixExtractorError(
+                "Missing embed src in API response from %s" %
+                api_url)
 
         return urljoin(site_url, embed_path)
 

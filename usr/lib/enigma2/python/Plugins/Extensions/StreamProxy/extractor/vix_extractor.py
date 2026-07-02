@@ -203,6 +203,8 @@ class VixSrcExtractor:
                     referer=url),
                 retries=2)
         except VixExtractorError as e:
+            if "404" in str(e):
+                raise VixExtractorError("VixSrc API endpoint not found (404): %s" % api_url)
             enhanced_log("API request failed: %s" % e, "WARNING", "VIX")
             return None
 
@@ -228,22 +230,13 @@ class VixSrcExtractor:
                 try:
                     payload = json.loads(text)
                 except (ValueError, json.JSONDecodeError) as exc2:
-                    enhanced_log(
-                        "Invalid API response from %s: %s" %
-                        (api_url, exc2), "ERROR", "VIX")
-                    return None
+                    raise VixExtractorError("Invalid API response from %s: %s" % (api_url, exc2))
             else:
-                enhanced_log(
-                    "Invalid API response from %s: response is not JSON" %
-                    api_url, "ERROR", "VIX")
-                return None
+                raise VixExtractorError("Invalid API response from %s: response is not JSON" % api_url)
 
         embed_path = payload.get("src")
         if not embed_path:
-            enhanced_log(
-                "Missing embed src in API response from %s" %
-                api_url, "WARNING", "VIX")
-            return None
+            raise VixExtractorError("Missing embed src in API response from %s" % api_url)
 
         return urljoin(site_url, embed_path)
 
@@ -469,11 +462,12 @@ class VixSrcExtractor:
                     "URL already resolved - direct passthrough",
                     "INFO",
                     "VIX")
+                stream_headers = self._fresh_headers()
                 return {
                     "resolved_url": url,
                     "destination_url": url,
-                    "headers": self._fresh_headers(),
-                    "request_headers": self._fresh_headers(),
+                    "headers": stream_headers,
+                    "request_headers": stream_headers,
                     "mediaflow_endpoint": self.mediaflow_endpoint,
                 }
 
@@ -502,11 +496,10 @@ class VixSrcExtractor:
                     re.IGNORECASE)
                 if not iframe_match:
                     raise VixExtractorError("No iframe found in response")
-                iframe_url = urljoin(site_url + "/", iframe_match.group(1))
+                iframe_url = iframe_match.group(1)
                 response = self._request(iframe_url, headers=inertia_headers)
 
             elif "/movie/" in parsed_url.path or "/tv/" in parsed_url.path:
-                # Try API first, then direct fallback
                 embed_url = self._resolve_embed_url_from_api(url, parsed_url)
                 if embed_url:
                     try:
@@ -532,81 +525,23 @@ class VixSrcExtractor:
                 raise VixExtractorError("No playlist data found in response")
 
             # Rewrite vixcloud.co/vixsrc.to → calpezz8.space in the final URL
-            # as in the server proxy
             final_url = final_url.replace(
                 "vixcloud.co", "calpezz8.space").replace(
                 "vixsrc.to", "calpezz8.space")
             stream_url = url.replace(
-                "vixcloud.co",
-                "calpezz8.space").replace(
-                "vixsrc.to",
-                "calpezz8.space")
+                "vixcloud.co", "calpezz8.space").replace(
+                "vixsrc.to", "calpezz8.space")
 
             enhanced_log("SUCCESS: %s..." % final_url[:120], "INFO", "VIX")
 
-            # Enigma2 optimisation: Download M3U8 with robust error handling
-            m3u8_content = None
-            try:
-                enhanced_log(
-                    "Downloading M3U8 content for AES key extraction...",
-                    "INFO",
-                    "VIX")
-                m3u8_response = self._request(
-                    final_url,
-                    headers=self._fresh_headers(Referer=stream_url),
-                    timeout=8,  # Reduced timeout for Enigma2
-                    retries=2   # Fewer retries to avoid blocking
-                )
-
-                if m3u8_response.status_code == 200:
-                    content_text = m3u8_response.text
-
-                    # Verify it is a valid M3U8
-                    if content_text.strip().startswith('#EXTM3U'):
-                        m3u8_content = content_text
-                        enhanced_log(
-                            "M3U8 downloaded: %d characters" %
-                            len(m3u8_content), "INFO", "VIX")
-
-                        # Log for AES key debugging
-                        if '#EXT-X-KEY' in m3u8_content:
-                            enhanced_log(
-                                "AES key found in M3U8", "INFO", "VIX")
-                    else:
-                        enhanced_log(
-                            "Content is not a valid M3U8", "WARNING", "VIX")
-                else:
-                    enhanced_log(
-                        "M3U8 download failed: HTTP %s" %
-                        m3u8_response.status_code, "WARNING", "VIX")
-            except Exception as m3u8_error:
-                enhanced_log(
-                    "M3U8 download error (non-critical): %s" %
-                    str(m3u8_error)[
-                        :100], "DEBUG", "VIX")
-
-            result = {
+            stream_headers = self._fresh_headers(Referer=stream_url)
+            return {
                 "resolved_url": final_url,
                 "destination_url": final_url,
-                "headers": self._fresh_headers(Referer=stream_url),
-                "request_headers": self._fresh_headers(Referer=stream_url),
+                "headers": stream_headers,
+                "request_headers": stream_headers,
                 "mediaflow_endpoint": self.mediaflow_endpoint,
             }
-
-            # Add M3U8 content if available
-            if m3u8_content:
-                result["m3u8_content"] = m3u8_content
-                enhanced_log(
-                    "Returned M3U8 with AES keys for decryption",
-                    "INFO",
-                    "VIX")
-            else:
-                enhanced_log(
-                    "M3U8 not downloaded - TS segments may not be decrypted",
-                    "WARNING",
-                    "VIX")
-
-            return result
 
         except VixExtractorError as exc:
             enhanced_log("Extraction error: %s" % exc, "ERROR", "VIX")

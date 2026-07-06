@@ -1,0 +1,8 @@
+{
+  "attivaProxyEsterno": "NO",
+  "proxyUrl": "",
+  "apiPassword": "",
+  "timeoutProxy": 15,
+  "usaExtractor": "SI",
+  "usaHlsProxy": "SI"
+}

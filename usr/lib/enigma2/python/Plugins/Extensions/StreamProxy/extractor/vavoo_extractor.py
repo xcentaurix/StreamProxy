@@ -291,10 +291,12 @@ class VavooExtractor:
             if isinstance(data, list) and data:
                 return str(data[0]["url"]) if data[0].get("url") else None
             if isinstance(data, dict):
-                return str(data["url"]) if data.get("url") else (
-                    str(data["data"]["url"]) if isinstance(data.get("data"), dict) and data["data"].get("url") else None)
+                return str(data["url"]) if data.get("url") else (str(data["data"]["url"]) if isinstance(
+                    data.get("data"), dict) and data["data"].get("url") else None)
         except Exception as exc:
-            enhanced_log("[VAVOO] Direct resolve error: %s" % exc, "WARNING", "VAVOO")
+            enhanced_log(
+                "[VAVOO] Direct resolve error: %s" %
+                exc, "WARNING", "VAVOO")
         return None
 
     def _resolve_with_signature(self, url, signature):
@@ -306,22 +308,30 @@ class VavooExtractor:
             "accept-encoding": "gzip",
             "mediahubmx-signature": signature,
         }
-        payload = {"language": "de", "region": "DE", "url": url, "clientVersion": "3.0.2"}
+        payload = {
+            "language": "de",
+            "region": "DE",
+            "url": url,
+            "clientVersion": "3.0.2"}
         try:
             resp = self._post_json(_RESOLVE_URL, payload, headers, timeout=18)
             if not resp or resp.status_code != 200:
                 enhanced_log(
-                    "[VAVOO] Signed resolve HTTP %s" % (resp.status_code if resp else "none"),
-                    "WARNING", "VAVOO")
+                    "[VAVOO] Signed resolve HTTP %s" %
+                    (resp.status_code if resp else "none"),
+                    "WARNING",
+                    "VAVOO")
                 return None
             data = resp.json()
             if isinstance(data, list) and data:
                 return str(data[0]["url"]) if data[0].get("url") else None
             if isinstance(data, dict):
-                return str(data["url"]) if data.get("url") else (
-                    str(data["data"]["url"]) if isinstance(data.get("data"), dict) and data["data"].get("url") else None)
+                return str(data["url"]) if data.get("url") else (str(data["data"]["url"]) if isinstance(
+                    data.get("data"), dict) and data["data"].get("url") else None)
         except Exception as exc:
-            enhanced_log("[VAVOO] Signed resolve error: %s" % exc, "WARNING", "VAVOO")
+            enhanced_log(
+                "[VAVOO] Signed resolve error: %s" %
+                exc, "WARNING", "VAVOO")
         return None
 
     def resolve_vavoo_link_cached(self, url):
@@ -337,14 +347,21 @@ class VavooExtractor:
 
         # 2. Fallback: resolve with Lokke/Vavoo signature
         if not resolved_url:
-            enhanced_log("[VAVOO] Direct resolve failed, trying signed resolve", "INFO", "VAVOO")
+            enhanced_log(
+                "[VAVOO] Direct resolve failed, trying signed resolve",
+                "INFO",
+                "VAVOO")
             signature = self.get_cached_signature()
             if signature:
-                resolved_url = self._resolve_with_signature(norm_url, signature)
+                resolved_url = self._resolve_with_signature(
+                    norm_url, signature)
 
         if resolved_url:
             self._url_cache[url] = {"url": resolved_url, "time": time.time()}
-            enhanced_log("[VAVOO] URL resolved via mediahubmx", "INFO", "VAVOO")
+            enhanced_log(
+                "[VAVOO] URL resolved via mediahubmx",
+                "INFO",
+                "VAVOO")
             return resolved_url
         return None
 

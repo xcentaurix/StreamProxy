@@ -191,11 +191,12 @@ def start_simple_server(port=7860):
 
     def _parse_query_safe(qs):
         """Split on literal & only, preserving %26 inside url value."""
+        from urllib.parse import unquote
         params = {}
         for part in qs.split('&'):
             if '=' in part:
                 k, _, v = part.partition('=')
-                params[k] = [v]
+                params[k] = [unquote(v) if k == 'url' else v]
         return params
 
     if _server_thread is not None and _server_thread.is_alive():

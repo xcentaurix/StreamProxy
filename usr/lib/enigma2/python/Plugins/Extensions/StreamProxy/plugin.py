@@ -81,6 +81,8 @@ def autostart(reason, **kwargs):
     """Main entry point for the plugin"""
     if reason == 0:  # Startup
         load_config()
+        from .config import initConfig
+        initConfig()
         print("[StreamProxy] Plugin started")
     elif reason == 1:  # Shutdown
         print("[StreamProxy] Plugin stopped")
@@ -167,7 +169,8 @@ class StreamProxyMain(Screen):
 
     def openSetup(self):
         print("[StreamProxy] Opening setup...")
-        self.session.open(StreamProxySetup)
+        from .StreamProxySetup import StreamProxySetup as RealSetup
+        self.session.open(RealSetup)
 
 
 class StreamProxySetup(Screen):

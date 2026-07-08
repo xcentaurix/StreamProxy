@@ -93,7 +93,10 @@ try:
         resolve_via_proxy_esterno,
         fetch_segment_via_proxy_esterno,
         register_cdn_domain,
-        is_cdn_daddy_url
+        is_cdn_daddy_url,
+        is_url_del_proxy_esterno,
+        build_external_segment_url,
+        build_external_key_url,
     )
     EXTERNAL_PROXY_AVAILABLE = True
     enhanced_log("External proxy available", "INFO", "AppCore")
@@ -115,6 +118,15 @@ except ImportError:
     def is_cdn_daddy_url(*args, **kwargs):
         return False
     enhanced_log("External proxy not available", "WARNING", "AppCore")
+
+    def is_url_del_proxy_esterno(*args, **kwargs):
+        return False
+
+    def build_external_segment_url(*args, **kwargs):
+        return None
+
+    def build_external_key_url(*args, **kwargs):
+        return None
 
 # External proxy domain cache
 EXTERNAL_PROXY_DOMAINS = set()
@@ -2092,17 +2104,16 @@ def get_stream_id_from_url(url):
                 (tv_key, stream_id), "INFO", "AppCore")
             return stream_id
 
-    # For VIX, use playlist ID as base
-    if 'vixsrc.to/playlist/' in url or 'vixcloud.co/playlist/' in url:
-        playlist_match = re.search(r'/playlist/(\d+)', url)
-        if playlist_match:
-            playlist_id = playlist_match.group(1)
-            stream_id = hashlib.sha256(
-                ("vix_%s" % playlist_id).encode()).hexdigest()[:12]
-            enhanced_log(
-                "[STREAM_ID] Deterministic stream ID for VIX playlist %s: %s" %
-                (playlist_id, stream_id), "INFO", "AppCore")
-            return stream_id
+    # For VIX, use playlist ID as base (covers vixsrc.to, vixcloud.co, calpezz8.space, etc.)
+    playlist_match = re.search(r'/playlist/(\d+)', url)
+    if playlist_match and any(d in url.lower() for d in ['vixsrc', 'vixcloud', 'calpezz', 'vix-content']):
+        playlist_id = playlist_match.group(1)
+        stream_id = hashlib.sha256(
+            ("vix_%s" % playlist_id).encode()).hexdigest()[:12]
+        enhanced_log(
+            "[STREAM_ID] Deterministic stream ID for VIX playlist %s: %s" %
+            (playlist_id, stream_id), "INFO", "AppCore")
+        return stream_id
 
     # For Freeshot, use channel name as base
     if 'lovecdn.ru' in url:
@@ -2238,6 +2249,7 @@ def proxy_m3u(request=None, **kwargs):
     enhanced_log("Proxy M3U", "INFO", "AppCore")
 
     m3u_url = kwargs.get('url', '').strip()
+    m3u_url = unquote(m3u_url)
     enhanced_log("[DEBUG] Received URL: %s" % m3u_url, "DEBUG", "AppCore")
 
     if not m3u_url:
@@ -2340,6 +2352,21 @@ def proxy_m3u(request=None, **kwargs):
         # Check if it is an automatic refresh of the same channel
         # IMPROVED: Use stream_id to identify if it is the same channel
         is_same_channel = current_stream_id in STREAM_KEY_INFO
+
+        # For multi-track providers (VixCloud etc.), also check if any existing
+        # stream shares the same base playlist ID to avoid wiping sibling tracks
+        if not is_same_channel and STREAM_KEY_INFO:
+            playlist_match = re.search(r'/playlist/(\d+)', m3u_url)
+            if playlist_match:
+                playlist_id = playlist_match.group(1)
+                is_same_channel = any(
+                    info.get('playlist_id') == playlist_id
+                    for info in STREAM_KEY_INFO.values()
+                )
+                if is_same_channel:
+                    enhanced_log(
+                        "[CACHE_REUSE] Same playlist session (%s), keeping existing streams" % playlist_id,
+                        "INFO", "AppCore")
 
         if not is_same_channel:
             # Channel change, clear cache to avoid conflicts
@@ -2637,12 +2664,15 @@ def proxy_m3u(request=None, **kwargs):
             result)
 
         # Always save basic stream info even without AES key
+        playlist_id_match = re.search(r'/playlist/(\d+)', m3u_url)
+        playlist_id_val = playlist_id_match.group(1) if playlist_id_match else None
         if stream_id not in STREAM_KEY_INFO:
             STREAM_KEY_INFO[stream_id] = {
                 'headers': current_headers_for_proxy or {},
                 'base_url': base_url,
                 'is_daddy': is_daddy_domain(final_url),
-                'is_freeshot': 'lovecdn.ru' in final_url.lower()
+                'is_freeshot': 'lovecdn.ru' in final_url.lower(),
+                'playlist_id': playlist_id_val,
             }
             enhanced_log(
                 "[STREAM_INFO] Saved base info for stream %s" % stream_id,
@@ -2669,6 +2699,73 @@ def proxy_m3u(request=None, **kwargs):
 
         modified_m3u8 = []
         aes_key_line = None  # Save the AES key line for DLHD
+
+        # =====================================================================
+        # EXTERNAL PROXY: rewrite segments to point to external proxy
+        # When active, the external proxy handles decrypt/conversion entirely.
+        # We only rewrite segment and key URLs; all other M3U8 tags are kept.
+        # =====================================================================
+        use_ext_proxy_segments = (
+            EXTERNAL_PROXY_AVAILABLE
+            and is_proxy_esterno_attivo()
+            and bool(build_external_segment_url('http://x'))
+        )
+        if use_ext_proxy_segments:
+            enhanced_log(
+                "[EXT_PROXY_M3U8] Rewriting segments to external proxy",
+                "INFO", "AppCore")
+            ext_rewritten = []
+            for line in m3u_content.splitlines():
+                line = line.strip()
+                if line.startswith("#EXT-X-KEY") and 'AES-128' in line:
+                    uri_match = re.search(r'URI="([^"]+)"', line)
+                    if uri_match:
+                        raw_key_url = urljoin(base_url, uri_match.group(1))
+                        ext_key_url = build_external_key_url(raw_key_url)
+                        if ext_key_url:
+                            line = line.replace(uri_match.group(1), ext_key_url)
+                    ext_rewritten.append(line)
+                elif line.startswith("#EXT-X-MAP") and 'URI="' in line:
+                    uri_match = re.search(r'URI="([^"]+)"', line)
+                    if uri_match:
+                        init_url = urljoin(base_url, uri_match.group(1))
+                        ext_init_url = build_external_segment_url(init_url)
+                        if ext_init_url:
+                            line = line.replace(uri_match.group(1), ext_init_url)
+                    ext_rewritten.append(line)
+                elif line.startswith("#EXT-X-MEDIA") and 'URI="' in line:
+                    if is_subtitle_media_tag(line):
+                        continue
+                    uri_match = re.search(r'URI="([^"]+)"', line)
+                    if uri_match:
+                        media_url = urljoin(base_url, uri_match.group(1))
+                        if not is_subtitle_resource(media_url):
+                            ext_media_url = build_external_segment_url(media_url)
+                            if ext_media_url:
+                                line = line.replace(uri_match.group(1), ext_media_url)
+                    ext_rewritten.append(line)
+                elif line and not line.startswith('#'):
+                    segment_url = urljoin(base_url, line)
+                    if is_subtitle_resource(segment_url):
+                        continue
+                    if '.m3u8' in segment_url.lower() or 'playlist' in segment_url.lower():
+                        ext_seg_url = build_external_segment_url(segment_url)
+                        ext_rewritten.append(ext_seg_url or segment_url)
+                    else:
+                        ext_seg_url = build_external_segment_url(segment_url)
+                        ext_rewritten.append(ext_seg_url or segment_url)
+                else:
+                    ext_rewritten.append(line)
+            final_m3u8 = "\n".join(ext_rewritten) + "\n"
+            enhanced_log(
+                "[EXT_PROXY_M3U8] Rewrite done (%d lines)" % len(ext_rewritten),
+                "INFO", "AppCore")
+            return {
+                'content': final_m3u8.encode(),
+                'status': 200,
+                'content_type': 'application/vnd.apple.mpegurl'
+            }
+        # =====================================================================
 
         for line in m3u_content.splitlines():
             line = line.strip()
@@ -3236,6 +3333,7 @@ def proxy_ts(request=None, **kwargs):
         "proxy_ts")
 
     ts_url = kwargs.get('url', '').strip()
+    ts_url = unquote(ts_url)
     stream_id = kwargs.get('stream_id', '')
     is_fmp4 = kwargs.get('fmp4', '0') == '1'
     is_dlhd_masked = kwargs.get('dlhd_masked', '0') == '1'
@@ -3258,6 +3356,29 @@ def proxy_ts(request=None, **kwargs):
             'status': 400,
             'content_type': 'text/plain'
         }
+
+    # If the URL already belongs to the external proxy, pass it through
+    # directly without any local processing (decrypt/convert).
+    if EXTERNAL_PROXY_AVAILABLE and is_proxy_esterno_attivo() and is_url_del_proxy_esterno(ts_url):
+        enhanced_log(
+            "[PROXY_TS] URL belongs to external proxy, direct passthrough",
+            "INFO", "proxy_ts")
+        try:
+            from .external_proxy import _get_session
+            resp = _get_session().get(
+                ts_url,
+                timeout=(5, 15),
+                verify=False,
+                allow_redirects=True,
+                stream=False
+            )
+            ct = resp.headers.get('Content-Type', 'video/mp2t')
+            return {'content': resp.content, 'status': resp.status_code, 'content_type': ct}
+        except Exception as e:
+            enhanced_log(
+                "[PROXY_TS] External proxy passthrough error: %s" % e,
+                "WARNING", "proxy_ts")
+            return {'content': b'', 'status': 502, 'content_type': 'video/mp2t'}
 
     enhanced_log(
         "[PROXY_TS] Valid URL received, continuing processing",
@@ -3938,6 +4059,7 @@ def extract_key_info_from_m3u8(
                 iv_hex = iv_bytes.hex()
                 # PATCH: create entry BEFORE any assignment
                 # Also save headers for use in key download
+                existing = STREAM_KEY_INFO.get(stream_id, {})
                 STREAM_KEY_INFO[stream_id] = {
                     'key_uri': key_uri,
                     'iv': iv_bytes,
@@ -3947,8 +4069,9 @@ def extract_key_info_from_m3u8(
                     'is_daddy': is_daddy,
                     'is_freeshot': is_freeshot,
                     'base_url': base_url,
-                    'headers': stream_headers or {},  # SAVE HEADERS
-                    'last_used': time.time()
+                    'headers': stream_headers or {},
+                    'last_used': time.time(),
+                    'playlist_id': existing.get('playlist_id'),
                 }
 
                 if is_daddy:

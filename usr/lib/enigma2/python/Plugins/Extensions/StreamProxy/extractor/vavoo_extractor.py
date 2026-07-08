@@ -253,16 +253,52 @@ class VavooExtractor:
                     "VAVOO")
         return None
 
-    def resolve_vavoo_link_cached(self, url):
-        cached = self._url_cache.get(url)
-        if cached and (time.time() - cached["time"]) < 180:
-            enhanced_log("[VAVOO] URL from cache", "DEBUG", "VAVOO")
-            return cached["url"]
+    def _normalize_vavoo_url(self, url):
+        """Normalize /watch?live=X and /play/X to /vavoo-iptv/play/X (EasyProxy style)."""
+        from urllib.parse import urlparse, parse_qs
+        if "/watch" in url:
+            params = parse_qs(urlparse(url).query)
+            live_id = params.get("live", [None])[0]
+            if live_id:
+                return "https://vavoo.to/vavoo-iptv/play/%s" % live_id
+        m = re.search(r"/play/([^/?#]+)", url)
+        if m:
+            return "https://vavoo.to/vavoo-iptv/play/%s" % m.group(1)
+        return url
 
-        signature = self.get_cached_signature()
-        if not signature:
+    def _resolve_direct(self, url):
+        """Resolve without signature header — EasyProxy primary method."""
+        if not self.session and not self._create_session():
             return None
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+            "Origin": "https://vavoo.to",
+            "Referer": "https://vavoo.to/",
+            "Accept": "application/json",
+            "Content-Type": "application/json; charset=utf-8",
+        }
+        payload = {"language": "de", "region": "DE", "url": url}
+        try:
+            resp = self.session.post(
+                _RESOLVE_URL, json=payload, headers=headers,
+                timeout=12, verify=False)
+            if resp.status_code != 200:
+                enhanced_log(
+                    "[VAVOO] Direct resolve HTTP %s" % resp.status_code,
+                    "WARNING", "VAVOO")
+                return None
+            data = resp.json()
+            if isinstance(data, list) and data:
+                return str(data[0]["url"]) if data[0].get("url") else None
+            if isinstance(data, dict):
+                return str(data["url"]) if data.get("url") else (
+                    str(data["data"]["url"]) if isinstance(data.get("data"), dict) and data["data"].get("url") else None)
+        except Exception as exc:
+            enhanced_log("[VAVOO] Direct resolve error: %s" % exc, "WARNING", "VAVOO")
+        return None
 
+    def _resolve_with_signature(self, url, signature):
+        """Resolve with mediahubmx-signature header — legacy fallback."""
         headers = {
             "user-agent": "MediaHubMX/2",
             "accept": "application/json",
@@ -270,44 +306,46 @@ class VavooExtractor:
             "accept-encoding": "gzip",
             "mediahubmx-signature": signature,
         }
-        payload = {
-            "language": "de",
-            "region": "AT",
-            "url": url,
-            "clientVersion": "3.0.2",
-        }
-
+        payload = {"language": "de", "region": "DE", "url": url, "clientVersion": "3.0.2"}
         try:
             resp = self._post_json(_RESOLVE_URL, payload, headers, timeout=18)
             if not resp or resp.status_code != 200:
                 enhanced_log(
-                    "[VAVOO] Resolve HTTP %s" %
-                    (resp.status_code if resp else "none"),
-                    "WARNING",
-                    "VAVOO")
+                    "[VAVOO] Signed resolve HTTP %s" % (resp.status_code if resp else "none"),
+                    "WARNING", "VAVOO")
                 return None
             data = resp.json()
-            resolved_url = None
             if isinstance(data, list) and data:
-                resolved_url = data[0].get("url")
-            elif isinstance(data, dict):
-                resolved_url = data.get("url")
-                if not resolved_url and isinstance(data.get("data"), dict):
-                    resolved_url = data["data"].get("url")
-
-            if resolved_url:
-                self._url_cache[url] = {
-                    "url": str(resolved_url), "time": time.time()}
-                enhanced_log(
-                    "[VAVOO] URL resolved via mediahubmx",
-                    "INFO",
-                    "VAVOO")
-                return str(resolved_url)
+                return str(data[0]["url"]) if data[0].get("url") else None
+            if isinstance(data, dict):
+                return str(data["url"]) if data.get("url") else (
+                    str(data["data"]["url"]) if isinstance(data.get("data"), dict) and data["data"].get("url") else None)
         except Exception as exc:
-            enhanced_log(
-                "[VAVOO] Resolve error: %s" % exc,
-                "WARNING",
-                "VAVOO")
+            enhanced_log("[VAVOO] Signed resolve error: %s" % exc, "WARNING", "VAVOO")
+        return None
+
+    def resolve_vavoo_link_cached(self, url):
+        cached = self._url_cache.get(url)
+        if cached and (time.time() - cached["time"]) < 180:
+            enhanced_log("[VAVOO] URL from cache", "DEBUG", "VAVOO")
+            return cached["url"]
+
+        norm_url = self._normalize_vavoo_url(url)
+
+        # 1. Try direct resolve (no auth) — EasyProxy primary method
+        resolved_url = self._resolve_direct(norm_url)
+
+        # 2. Fallback: resolve with Lokke/Vavoo signature
+        if not resolved_url:
+            enhanced_log("[VAVOO] Direct resolve failed, trying signed resolve", "INFO", "VAVOO")
+            signature = self.get_cached_signature()
+            if signature:
+                resolved_url = self._resolve_with_signature(norm_url, signature)
+
+        if resolved_url:
+            self._url_cache[url] = {"url": resolved_url, "time": time.time()}
+            enhanced_log("[VAVOO] URL resolved via mediahubmx", "INFO", "VAVOO")
+            return resolved_url
         return None
 
     def get_ts_signature(self):

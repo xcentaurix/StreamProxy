@@ -70,10 +70,19 @@ class StreamProxySetup(Screen, ConfigListScreen):
             getConfigListEntry("Custom User-Agent", cfg.use_custom_useragent),
         ]
         if cfg.use_custom_useragent.value:
-            lst.append(getConfigListEntry("User-Agent string", cfg.custom_useragent))
+            lst.append(
+                getConfigListEntry(
+                    "User-Agent string",
+                    cfg.custom_useragent))
         lst.append(getConfigListEntry("", ConfigNothing()))
-        lst.append(getConfigListEntry("*** configProxy.txt ***", ConfigNothing()))
-        lst.append(getConfigListEntry("Enable external proxy", cfg.attivaProxyEsterno))
+        lst.append(
+            getConfigListEntry(
+                "*** configProxy.txt ***",
+                ConfigNothing()))
+        lst.append(
+            getConfigListEntry(
+                "Enable external proxy",
+                cfg.attivaProxyEsterno))
         if cfg.attivaProxyEsterno.value:
             lst += [
                 getConfigListEntry("Proxy URL", cfg.proxyUrl),
@@ -116,11 +125,15 @@ class StreamProxySetup(Screen, ConfigListScreen):
             "usaExtractor": "SI" if cfg.usaExtractor.value else "NO",
             "usaHlsProxy": "SI" if cfg.usaHlsProxy.value else "NO",
         }
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configProxy.txt')
+        path = os.path.join(
+            os.path.dirname(
+                os.path.abspath(__file__)),
+            'configProxy.txt')
         try:
             with open(path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2)
-            # Invalidate external_proxy cache so new values are picked up immediately
+            # Invalidate external_proxy cache so new values are picked up
+            # immediately
             try:
                 from . import external_proxy
                 external_proxy._cfg_cache_ts = 0.0

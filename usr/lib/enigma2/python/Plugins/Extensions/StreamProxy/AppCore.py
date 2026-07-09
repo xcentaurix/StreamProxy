@@ -1255,17 +1255,25 @@ def resolve_m3u8_link(url, headers=None, **kwargs):
     # EXTERNAL PROXY: Check before any extractor
     # =====================================================================
     if EXTERNAL_PROXY_AVAILABLE and is_proxy_esterno_attivo():
-        enhanced_log("External proxy active, delegating resolve", "INFO", "AppCore")
+        enhanced_log(
+            "External proxy active, delegating resolve",
+            "INFO",
+            "AppCore")
         external_result = resolve_via_proxy_esterno(clean_url, current_headers)
-        if external_result and (external_result.get("resolved_url") or external_result.get("m3u8_content")):
+        if external_result and (external_result.get(
+                "resolved_url") or external_result.get("m3u8_content")):
             enhanced_log("URL resolved by external proxy", "INFO", "AppCore")
             return {
                 "resolved_url": external_result.get("resolved_url"),
                 "headers": {**current_headers, **external_result.get("headers", {})},
                 "m3u8_content": external_result.get("m3u8_content")
             }
-        # External proxy active but failed — do NOT fall through to internal extractors
-        enhanced_log("[EXT_PROXY] resolve failed, aborting", "ERROR", "AppCore")
+        # External proxy active but failed — do NOT fall through to internal
+        # extractors
+        enhanced_log(
+            "[EXT_PROXY] resolve failed, aborting",
+            "ERROR",
+            "AppCore")
         return {"resolved_url": None, "headers": current_headers}
     # =====================================================================
 
@@ -2104,9 +2112,15 @@ def get_stream_id_from_url(url):
                 (tv_key, stream_id), "INFO", "AppCore")
             return stream_id
 
-    # For VIX, use playlist ID as base (covers vixsrc.to, vixcloud.co, calpezz8.space, etc.)
+    # For VIX, use playlist ID as base (covers vixsrc.to, vixcloud.co,
+    # calpezz8.space, etc.)
     playlist_match = re.search(r'/playlist/(\d+)', url)
-    if playlist_match and any(d in url.lower() for d in ['vixsrc', 'vixcloud', 'calpezz', 'vix-content']):
+    if playlist_match and any(
+        d in url.lower() for d in [
+            'vixsrc',
+            'vixcloud',
+            'calpezz',
+            'vix-content']):
         playlist_id = playlist_match.group(1)
         stream_id = hashlib.sha256(
             ("vix_%s" % playlist_id).encode()).hexdigest()[:12]
@@ -2281,29 +2295,36 @@ def proxy_m3u(request=None, **kwargs):
         # =====================================================================
         if EXTERNAL_PROXY_AVAILABLE and is_proxy_esterno_attivo():
             enhanced_log("Delegating to external proxy", "INFO", "AppCore")
-            external_result = resolve_via_proxy_esterno(m3u_url, custom_headers)
+            external_result = resolve_via_proxy_esterno(
+                m3u_url, custom_headers)
             if external_result and external_result.get("m3u8_content"):
-                enhanced_log("M3U8 obtained from external proxy", "INFO", "AppCore")
+                enhanced_log(
+                    "M3U8 obtained from external proxy",
+                    "INFO",
+                    "AppCore")
                 return {
                     'content': external_result["m3u8_content"].encode(),
                     'status': 200,
                     'content_type': 'application/vnd.apple.mpegurl'
                 }
             elif external_result and external_result.get("resolved_url"):
-                enhanced_log("Using resolved URL from external proxy", "INFO", "AppCore")
+                enhanced_log(
+                    "Using resolved URL from external proxy",
+                    "INFO",
+                    "AppCore")
                 m3u_url = external_result["resolved_url"]
                 if external_result.get("headers"):
                     custom_headers.update(external_result["headers"])
             else:
-                # External proxy failed — do NOT fall through to internal extractors
+                # External proxy failed — do NOT fall through to internal
+                # extractors
                 enhanced_log(
                     "[EXT_PROXY] Resolution failed, returning empty playlist",
                     "ERROR", "AppCore")
                 return {
                     'content': "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-ENDLIST\n".encode(),
                     'status': 200,
-                    'content_type': 'application/vnd.apple.mpegurl'
-                }
+                    'content_type': 'application/vnd.apple.mpegurl'}
         # =====================================================================
 
         # Extract dlhd_masked parameter from request (will be updated after
@@ -2357,7 +2378,8 @@ def proxy_m3u(request=None, **kwargs):
         is_same_channel = current_stream_id in STREAM_KEY_INFO
 
         # For multi-track providers (VixCloud etc.), also check if any existing
-        # stream shares the same base playlist ID to avoid wiping sibling tracks
+        # stream shares the same base playlist ID to avoid wiping sibling
+        # tracks
         if not is_same_channel and STREAM_KEY_INFO:
             playlist_match = re.search(r'/playlist/(\d+)', m3u_url)
             if playlist_match:
@@ -2368,8 +2390,8 @@ def proxy_m3u(request=None, **kwargs):
                 )
                 if is_same_channel:
                     enhanced_log(
-                        "[CACHE_REUSE] Same playlist session (%s), keeping existing streams" % playlist_id,
-                        "INFO", "AppCore")
+                        "[CACHE_REUSE] Same playlist session (%s), keeping existing streams" %
+                        playlist_id, "INFO", "AppCore")
 
         if not is_same_channel:
             # Channel change, clear cache to avoid conflicts
@@ -2668,7 +2690,8 @@ def proxy_m3u(request=None, **kwargs):
 
         # Always save basic stream info even without AES key
         playlist_id_match = re.search(r'/playlist/(\d+)', m3u_url)
-        playlist_id_val = playlist_id_match.group(1) if playlist_id_match else None
+        playlist_id_val = playlist_id_match.group(
+            1) if playlist_id_match else None
         if stream_id not in STREAM_KEY_INFO:
             STREAM_KEY_INFO[stream_id] = {
                 'headers': current_headers_for_proxy or {},
@@ -2726,7 +2749,8 @@ def proxy_m3u(request=None, **kwargs):
                         raw_key_url = urljoin(base_url, uri_match.group(1))
                         ext_key_url = build_external_key_url(raw_key_url)
                         if ext_key_url:
-                            line = line.replace(uri_match.group(1), ext_key_url)
+                            line = line.replace(
+                                uri_match.group(1), ext_key_url)
                     ext_rewritten.append(line)
                 elif line.startswith("#EXT-X-MAP") and 'URI="' in line:
                     uri_match = re.search(r'URI="([^"]+)"', line)
@@ -2734,7 +2758,8 @@ def proxy_m3u(request=None, **kwargs):
                         init_url = urljoin(base_url, uri_match.group(1))
                         ext_init_url = build_external_segment_url(init_url)
                         if ext_init_url:
-                            line = line.replace(uri_match.group(1), ext_init_url)
+                            line = line.replace(
+                                uri_match.group(1), ext_init_url)
                     ext_rewritten.append(line)
                 elif line.startswith("#EXT-X-MEDIA") and 'URI="' in line:
                     if is_subtitle_media_tag(line):
@@ -2743,9 +2768,11 @@ def proxy_m3u(request=None, **kwargs):
                     if uri_match:
                         media_url = urljoin(base_url, uri_match.group(1))
                         if not is_subtitle_resource(media_url):
-                            ext_media_url = build_external_segment_url(media_url)
+                            ext_media_url = build_external_segment_url(
+                                media_url)
                             if ext_media_url:
-                                line = line.replace(uri_match.group(1), ext_media_url)
+                                line = line.replace(
+                                    uri_match.group(1), ext_media_url)
                     ext_rewritten.append(line)
                 elif line and not line.startswith('#'):
                     segment_url = urljoin(base_url, line)
@@ -2761,8 +2788,8 @@ def proxy_m3u(request=None, **kwargs):
                     ext_rewritten.append(line)
             final_m3u8 = "\n".join(ext_rewritten) + "\n"
             enhanced_log(
-                "[EXT_PROXY_M3U8] Rewrite done (%d lines)" % len(ext_rewritten),
-                "INFO", "AppCore")
+                "[EXT_PROXY_M3U8] Rewrite done (%d lines)" %
+                len(ext_rewritten), "INFO", "AppCore")
             return {
                 'content': final_m3u8.encode(),
                 'status': 200,
@@ -3362,7 +3389,8 @@ def proxy_ts(request=None, **kwargs):
 
     # If the URL already belongs to the external proxy, pass it through
     # directly without any local processing (decrypt/convert).
-    if EXTERNAL_PROXY_AVAILABLE and is_proxy_esterno_attivo() and is_url_del_proxy_esterno(ts_url):
+    if EXTERNAL_PROXY_AVAILABLE and is_proxy_esterno_attivo(
+    ) and is_url_del_proxy_esterno(ts_url):
         enhanced_log(
             "[PROXY_TS] URL belongs to external proxy, direct passthrough",
             "INFO", "proxy_ts")
@@ -3376,12 +3404,18 @@ def proxy_ts(request=None, **kwargs):
                 stream=False
             )
             ct = resp.headers.get('Content-Type', 'video/mp2t')
-            return {'content': resp.content, 'status': resp.status_code, 'content_type': ct}
+            return {
+                'content': resp.content,
+                'status': resp.status_code,
+                'content_type': ct}
         except Exception as e:
             enhanced_log(
                 "[PROXY_TS] External proxy passthrough error: %s" % e,
                 "WARNING", "proxy_ts")
-            return {'content': b'', 'status': 502, 'content_type': 'video/mp2t'}
+            return {
+                'content': b'',
+                'status': 502,
+                'content_type': 'video/mp2t'}
 
     enhanced_log(
         "[PROXY_TS] Valid URL received, continuing processing",

@@ -3,7 +3,10 @@ import os
 import json
 from Components.config import config, ConfigSubsection, ConfigYesNo, ConfigText, ConfigInteger
 
-_PROXY_CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configProxy.txt')
+_PROXY_CONFIG_PATH = os.path.join(
+    os.path.dirname(
+        os.path.abspath(__file__)),
+    'configProxy.txt')
 
 
 def _load_proxy_file():
@@ -40,8 +43,12 @@ def initConfig():
     config.plugins.streamproxy.cache_dir = ConfigText(
         default="/tmp/streamproxy_cache")
     # configProxy.txt settings — seeded from file so Setup shows real values
-    _ext_active = str(p.get('attivaProxyEsterno', 'NO')).strip().upper() == 'SI'
-    config.plugins.streamproxy.attivaProxyEsterno = ConfigYesNo(default=_ext_active)
+    _ext_active = str(
+        p.get(
+            'attivaProxyEsterno',
+            'NO')).strip().upper() == 'SI'
+    config.plugins.streamproxy.attivaProxyEsterno = ConfigYesNo(
+        default=_ext_active)
     config.plugins.streamproxy.proxyUrl = ConfigText(
         default=p.get('proxyUrl', 'https://proxy.example.com'))
     config.plugins.streamproxy.apiPassword = ConfigText(

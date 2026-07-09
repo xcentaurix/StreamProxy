@@ -550,19 +550,38 @@ def resolve_via_proxy_esterno(url, request_headers=None):
                     list(data.keys())[:10],
                     "INFO", "ExtProxy")
                 enhanced_log(
-                    "[ExtProxy] mediaflow_endpoint=%s mediaflow_proxy_url=%s" % (
-                        str(data.get('mediaflow_endpoint', ''))[:100],
-                        str(data.get('mediaflow_proxy_url', ''))[:100]),
-                    "INFO", "ExtProxy")
+                    "[ExtProxy] mediaflow_endpoint=%s mediaflow_proxy_url=%s" %
+                    (str(
+                        data.get(
+                            'mediaflow_endpoint', ''))[
+                        :100], str(
+                        data.get(
+                            'mediaflow_proxy_url', ''))[
+                            :100]), "INFO", "ExtProxy")
                 enhanced_log(
-                    "[ExtProxy] query_params=%s" % str(data.get('query_params', {}))[:200],
-                    "INFO", "ExtProxy")
+                    "[ExtProxy] query_params=%s" % str(
+                        data.get(
+                            'query_params',
+                            {}))[
+                        :200],
+                    "INFO",
+                    "ExtProxy")
                 enhanced_log(
-                    "[ExtProxy] destination_url=%s" % str(data.get('destination_url', ''))[:200],
-                    "INFO", "ExtProxy")
+                    "[ExtProxy] destination_url=%s" % str(
+                        data.get(
+                            'destination_url',
+                            ''))[
+                        :200],
+                    "INFO",
+                    "ExtProxy")
                 enhanced_log(
-                    "[ExtProxy] request_headers=%s" % str(data.get('request_headers', {}))[:200],
-                    "INFO", "ExtProxy")
+                    "[ExtProxy] request_headers=%s" % str(
+                        data.get(
+                            'request_headers',
+                            {}))[
+                        :200],
+                    "INFO",
+                    "ExtProxy")
 
                 # EasyProxy MediaFlow endpoints crash (500) for Daddy.
                 # Return destination_url directly — AppCore will fetch it
@@ -579,8 +598,9 @@ def resolve_via_proxy_esterno(url, request_headers=None):
                     if cache_key:
                         with _manifest_lock:
                             if len(_manifest_cache) > _MAX_MANIFEST_CACHE:
-                                oldest = min(_manifest_cache.keys(),
-                                             key=lambda k: _manifest_cache[k]['ts'])
+                                oldest = min(
+                                    _manifest_cache.keys(),
+                                    key=lambda k: _manifest_cache[k]['ts'])
                                 del _manifest_cache[oldest]
                             _manifest_cache[cache_key] = {
                                 'content': None,

@@ -1,8 +1,8 @@
 #!/bin/bash
 ## setup command=wget -q --no-check-certificate https://raw.githubusercontent.com/OwnerPlugins/StreamProxy/main/installer.sh -O - | /bin/bash
 
-version='1.2_20260626'
-changelog="Add screen"
+version='1.3_20260708'
+changelog="fIX SERVER EXTRACTOR"
 
 TMPPATH=/tmp/StreamProxy-install
 FILEPATH=/tmp/StreamProxy-main.tar.gz

@@ -130,7 +130,7 @@ def load_proxy_config():
 
 def is_proxy_esterno_attivo():
     cfg = load_proxy_config()
-    return str(cfg.get('attivaProxyEsterno', 'NO')).strip().upper() == 'SI'
+    return str(cfg.get('attivaProxyEsterno', 'NO')).strip().upper() == 'YES'
 
 
 def get_proxy_base_url():

@@ -1255,18 +1255,18 @@ def resolve_m3u8_link(url, headers=None, **kwargs):
     # EXTERNAL PROXY: Check before any extractor
     # =====================================================================
     if EXTERNAL_PROXY_AVAILABLE and is_proxy_esterno_attivo():
-        enhanced_log(
-            "External proxy active, delegating resolve",
-            "INFO",
-            "AppCore")
+        enhanced_log("External proxy active, delegating resolve", "INFO", "AppCore")
         external_result = resolve_via_proxy_esterno(clean_url, current_headers)
-        if external_result and external_result.get("resolved_url"):
+        if external_result and (external_result.get("resolved_url") or external_result.get("m3u8_content")):
             enhanced_log("URL resolved by external proxy", "INFO", "AppCore")
             return {
-                "resolved_url": external_result["resolved_url"],
+                "resolved_url": external_result.get("resolved_url"),
                 "headers": {**current_headers, **external_result.get("headers", {})},
                 "m3u8_content": external_result.get("m3u8_content")
             }
+        # External proxy active but failed — do NOT fall through to internal extractors
+        enhanced_log("[EXT_PROXY] resolve failed, aborting", "ERROR", "AppCore")
+        return {"resolved_url": None, "headers": current_headers}
     # =====================================================================
 
     # 1. Extract header from URL
@@ -2277,30 +2277,33 @@ def proxy_m3u(request=None, **kwargs):
                 "AppCore")
 
         # =====================================================================
-        # EXTERNAL PROXY: Complete delegation
+        # EXTERNAL PROXY: Complete delegation — no internal fallback allowed
         # =====================================================================
         if EXTERNAL_PROXY_AVAILABLE and is_proxy_esterno_attivo():
             enhanced_log("Delegating to external proxy", "INFO", "AppCore")
-            external_result = resolve_via_proxy_esterno(
-                m3u_url, custom_headers)
+            external_result = resolve_via_proxy_esterno(m3u_url, custom_headers)
             if external_result and external_result.get("m3u8_content"):
-                enhanced_log(
-                    "M3U8 obtained from external proxy",
-                    "INFO",
-                    "AppCore")
+                enhanced_log("M3U8 obtained from external proxy", "INFO", "AppCore")
                 return {
                     'content': external_result["m3u8_content"].encode(),
                     'status': 200,
                     'content_type': 'application/vnd.apple.mpegurl'
                 }
             elif external_result and external_result.get("resolved_url"):
-                enhanced_log(
-                    "Using resolved URL from external proxy",
-                    "INFO",
-                    "AppCore")
+                enhanced_log("Using resolved URL from external proxy", "INFO", "AppCore")
                 m3u_url = external_result["resolved_url"]
                 if external_result.get("headers"):
                     custom_headers.update(external_result["headers"])
+            else:
+                # External proxy failed — do NOT fall through to internal extractors
+                enhanced_log(
+                    "[EXT_PROXY] Resolution failed, returning empty playlist",
+                    "ERROR", "AppCore")
+                return {
+                    'content': "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-ENDLIST\n".encode(),
+                    'status': 200,
+                    'content_type': 'application/vnd.apple.mpegurl'
+                }
         # =====================================================================
 
         # Extract dlhd_masked parameter from request (will be updated after

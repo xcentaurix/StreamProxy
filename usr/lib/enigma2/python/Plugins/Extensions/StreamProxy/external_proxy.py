@@ -8,7 +8,7 @@ import json
 import time
 import threading
 import requests
-from urllib.parse import unquote, urlparse, quote
+from urllib.parse import unquote, urlparse, quote, urlencode
 
 try:
     from .StreamProxyLog import enhanced_log
@@ -427,6 +427,11 @@ def resolve_via_proxy_esterno(url, request_headers=None):
             "INFO",
             "ExtProxy")
 
+        if resp.status_code != 200:
+            enhanced_log(
+                "[ExtProxy] /proxy/manifest.m3u8 body=%s" % resp.text[:300],
+                "WARNING", "ExtProxy")
+
         if resp.status_code == 200 and resp.text.strip().startswith('#EXTM3U'):
             enhanced_log(
                 "[ExtProxy] Stream fully handled by external proxy",
@@ -519,8 +524,8 @@ def resolve_via_proxy_esterno(url, request_headers=None):
     # ── STEP 3: DADDY FALLBACK → /extractor/video for CDN URL and internal handling ──
     if is_daddy:
         host = _detect_host(clean_src) or 'dlstreams'
-        extractor_url = "%s/extractor/video?host=%s&d=%s&api_password=%s" % (
-            proxy_url, host, quote(clean_src), api_password)
+        extractor_url = "%s/extractor/video?host=%s&d=%s&api_password=%s&_t=%d" % (
+            proxy_url, host, quote(clean_src), api_password, int(time.time()))
         enhanced_log("[ExtProxy] Daddy fallback → extractor for CDN URL: %s" %
                      extractor_url[:120], "INFO", "ExtProxy")
         try:
@@ -542,74 +547,51 @@ def resolve_via_proxy_esterno(url, request_headers=None):
 
                 enhanced_log(
                     "[ExtProxy] extractor data keys: %s" %
-                    list(
-                        data.keys())[
-                        :10],
-                    "INFO",
-                    "ExtProxy")
+                    list(data.keys())[:10],
+                    "INFO", "ExtProxy")
+                enhanced_log(
+                    "[ExtProxy] mediaflow_endpoint=%s mediaflow_proxy_url=%s" % (
+                        str(data.get('mediaflow_endpoint', ''))[:100],
+                        str(data.get('mediaflow_proxy_url', ''))[:100]),
+                    "INFO", "ExtProxy")
+                enhanced_log(
+                    "[ExtProxy] query_params=%s" % str(data.get('query_params', {}))[:200],
+                    "INFO", "ExtProxy")
+                enhanced_log(
+                    "[ExtProxy] destination_url=%s" % str(data.get('destination_url', ''))[:200],
+                    "INFO", "ExtProxy")
+                enhanced_log(
+                    "[ExtProxy] request_headers=%s" % str(data.get('request_headers', {}))[:200],
+                    "INFO", "ExtProxy")
 
+                # EasyProxy MediaFlow endpoints crash (500) for Daddy.
+                # Return destination_url directly — AppCore will fetch it
+                # via the normal HLS pipeline with the provided headers.
                 if stream_url and stream_url.startswith('http'):
-                    enhanced_log("[ExtProxy] Daddy CDN URL extracted, internal handling: %s" %
-                                 stream_url[:80], "INFO", "ExtProxy")
                     register_cdn_domain(stream_url)
-                    # INTERNAL HANDLING: download CDN manifest with EasyProxy
-                    # session
-                    try:
-                        m3u_resp = _fetch_via_session(
-                            stream_url, req_hdrs, timeout, retry=2)
-                        if m3u_resp.status_code == 200 and m3u_resp.text.strip().startswith('#EXTM3U'):
-                            enhanced_log(
-                                "[ExtProxy] Daddy CDN manifest downloaded, internal handling active",
-                                "INFO",
-                                "ExtProxy")
-                            # Register all CDN domains found in the manifest
-                            for line in m3u_resp.text.splitlines():
-                                line = line.strip()
-                                if line.startswith('http'):
-                                    register_cdn_domain(line)
-                                elif line and not line.startswith('#'):
-                                    from urllib.parse import urljoin as _urljoin
-                                    abs_url = _urljoin(str(m3u_resp.url), line)
-                                    register_cdn_domain(abs_url)
-                            result = {
-                                'resolved_url': str(m3u_resp.url),
-                                'm3u8_content': m3u_resp.text,
+                    enhanced_log("[ExtProxy] Returning CDN URL for local HLS fetch: %s" %
+                                 stream_url[:80], "INFO", "ExtProxy")
+                    result = {
+                        'resolved_url': stream_url,
+                        'm3u8_content': None,
+                        'headers': req_hdrs,
+                    }
+                    if cache_key:
+                        with _manifest_lock:
+                            if len(_manifest_cache) > _MAX_MANIFEST_CACHE:
+                                oldest = min(_manifest_cache.keys(),
+                                             key=lambda k: _manifest_cache[k]['ts'])
+                                del _manifest_cache[oldest]
+                            _manifest_cache[cache_key] = {
+                                'content': None,
+                                'resolved_url': stream_url,
                                 'headers': req_hdrs,
+                                'ts': time.time(),
                             }
-                            if cache_key:
-                                with _manifest_lock:
-                                    if len(
-                                            _manifest_cache) > _MAX_MANIFEST_CACHE:
-                                        oldest = min(
-                                            _manifest_cache.keys(), key=lambda k: _manifest_cache[k]['ts'])
-                                        del _manifest_cache[oldest]
-                                    _manifest_cache[cache_key] = {
-                                        'content': m3u_resp.text,
-                                        'resolved_url': str(m3u_resp.url),
-                                        'headers': req_hdrs,
-                                        'ts': time.time(),
-                                    }
-                            return result
-                        enhanced_log(
-                            "[ExtProxy] CDN manifest HTTP %s — NO LOCAL FALLBACK" %
-                            m3u_resp.status_code, "WARNING", "ExtProxy")
-                    except requests.exceptions.Timeout as e:
-                        enhanced_log(
-                            "[ExtProxy] CDN fetch timeout: %s" %
-                            e, "WARNING", "ExtProxy")
-                    except requests.exceptions.RequestException as e:
-                        enhanced_log(
-                            "[ExtProxy] CDN fetch error: %s" %
-                            e, "WARNING", "ExtProxy")
-                    except Exception as e:
-                        enhanced_log(
-                            "[ExtProxy] Unexpected CDN fetch error: %s: %s" %
-                            (type(e).__name__, e), "WARNING", "ExtProxy")
-                else:
-                    enhanced_log(
-                        "[ExtProxy] extractor without URL: %s" %
-                        str(data)[
-                            :120], "WARNING", "ExtProxy")
+                    return result
+                enhanced_log(
+                    "[ExtProxy] extractor without URL: %s" % str(data)[:120],
+                    "WARNING", "ExtProxy")
             else:
                 enhanced_log("[ExtProxy] extractor HTTP %s: %s" % (
                     resp.status_code, resp.text[:80]), "WARNING", "ExtProxy")

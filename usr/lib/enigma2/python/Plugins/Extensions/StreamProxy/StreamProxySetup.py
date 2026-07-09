@@ -56,6 +56,8 @@ class StreamProxySetup(Screen, ConfigListScreen):
             self.proxyEsternoChanged, initial_call=False)
 
     def _buildList(self):
+        if "config" not in self:
+            return
         cfg = config.plugins.streamproxy
         lst = [
             getConfigListEntry("*** SPconfig.txt ***", ConfigNothing()),
